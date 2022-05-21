@@ -3,16 +3,10 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-Object.defineProperty(exports, "defaultFieldResolver", {
+Object.defineProperty(exports, "responsePathAsArray", {
   enumerable: true,
   get: function get() {
-    return _execute.defaultFieldResolver;
-  }
-});
-Object.defineProperty(exports, "defaultTypeResolver", {
-  enumerable: true,
-  get: function get() {
-    return _execute.defaultTypeResolver;
+    return _Path.pathToArray;
   }
 });
 Object.defineProperty(exports, "execute", {
@@ -27,16 +21,22 @@ Object.defineProperty(exports, "executeSync", {
     return _execute.executeSync;
   }
 });
+Object.defineProperty(exports, "defaultFieldResolver", {
+  enumerable: true,
+  get: function get() {
+    return _execute.defaultFieldResolver;
+  }
+});
+Object.defineProperty(exports, "defaultTypeResolver", {
+  enumerable: true,
+  get: function get() {
+    return _execute.defaultTypeResolver;
+  }
+});
 Object.defineProperty(exports, "getDirectiveValues", {
   enumerable: true,
   get: function get() {
     return _values.getDirectiveValues;
-  }
-});
-Object.defineProperty(exports, "responsePathAsArray", {
-  enumerable: true,
-  get: function get() {
-    return _Path.pathToArray;
   }
 });
 

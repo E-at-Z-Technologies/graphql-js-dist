@@ -3,10 +3,10 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.assertValidSDL = assertValidSDL;
-exports.assertValidSDLExtension = assertValidSDLExtension;
 exports.validate = validate;
 exports.validateSDL = validateSDL;
+exports.assertValidSDL = assertValidSDL;
+exports.assertValidSDLExtension = assertValidSDLExtension;
 
 var _devAssert = _interopRequireDefault(require("../jsutils/devAssert.js"));
 

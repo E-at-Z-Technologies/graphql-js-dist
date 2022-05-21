@@ -3,8 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Lexer = void 0;
 exports.isPunctuatorTokenKind = isPunctuatorTokenKind;
+exports.Lexer = void 0;
 
 var _syntaxError = require("../error/syntaxError.js");
 

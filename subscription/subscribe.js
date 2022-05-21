@@ -3,8 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.createSourceEventStream = createSourceEventStream;
 exports.subscribe = subscribe;
+exports.createSourceEventStream = createSourceEventStream;
 
 var _inspect = _interopRequireDefault(require("../jsutils/inspect.js"));
 

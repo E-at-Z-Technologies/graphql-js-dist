@@ -3,10 +3,10 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.QueryDocumentKeys = exports.BREAK = void 0;
-exports.getVisitFn = getVisitFn;
 exports.visit = visit;
 exports.visitInParallel = visitInParallel;
+exports.getVisitFn = getVisitFn;
+exports.BREAK = exports.QueryDocumentKeys = void 0;
 
 var _inspect = _interopRequireDefault(require("../jsutils/inspect.js"));
 

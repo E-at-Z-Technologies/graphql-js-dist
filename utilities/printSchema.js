@@ -3,8 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.printIntrospectionSchema = printIntrospectionSchema;
 exports.printSchema = printSchema;
+exports.printIntrospectionSchema = printIntrospectionSchema;
 exports.printType = printType;
 
 var _objectValues = _interopRequireDefault(require("../polyfills/objectValues.js"));

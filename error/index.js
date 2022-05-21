@@ -9,18 +9,6 @@ Object.defineProperty(exports, "GraphQLError", {
     return _GraphQLError.GraphQLError;
   }
 });
-Object.defineProperty(exports, "formatError", {
-  enumerable: true,
-  get: function get() {
-    return _formatError.formatError;
-  }
-});
-Object.defineProperty(exports, "locatedError", {
-  enumerable: true,
-  get: function get() {
-    return _locatedError.locatedError;
-  }
-});
 Object.defineProperty(exports, "printError", {
   enumerable: true,
   get: function get() {
@@ -31,6 +19,18 @@ Object.defineProperty(exports, "syntaxError", {
   enumerable: true,
   get: function get() {
     return _syntaxError.syntaxError;
+  }
+});
+Object.defineProperty(exports, "locatedError", {
+  enumerable: true,
+  get: function get() {
+    return _locatedError.locatedError;
+  }
+});
+Object.defineProperty(exports, "formatError", {
+  enumerable: true,
+  get: function get() {
+    return _formatError.formatError;
   }
 });
 

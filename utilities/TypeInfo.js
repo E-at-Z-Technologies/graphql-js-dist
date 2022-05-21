@@ -3,8 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.TypeInfo = void 0;
 exports.visitWithTypeInfo = visitWithTypeInfo;
+exports.TypeInfo = void 0;
 
 var _find = _interopRequireDefault(require("../polyfills/find.js"));
 

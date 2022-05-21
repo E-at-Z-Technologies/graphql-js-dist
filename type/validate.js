@@ -3,8 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.assertValidSchema = assertValidSchema;
 exports.validateSchema = validateSchema;
+exports.assertValidSchema = assertValidSchema;
 
 var _find = _interopRequireDefault(require("../polyfills/find.js"));
 

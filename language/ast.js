@@ -3,8 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Token = exports.Location = void 0;
 exports.isNode = isNode;
+exports.Token = exports.Location = void 0;
 
 var _defineInspect = _interopRequireDefault(require("../jsutils/defineInspect.js"));
 

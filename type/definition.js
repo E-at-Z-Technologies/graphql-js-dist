@@ -3,49 +3,48 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.GraphQLInterfaceType = exports.GraphQLInputObjectType = exports.GraphQLEnumType = void 0;
+exports.isType = isType;
+exports.assertType = assertType;
+exports.isScalarType = isScalarType;
+exports.assertScalarType = assertScalarType;
+exports.isObjectType = isObjectType;
+exports.assertObjectType = assertObjectType;
+exports.isInterfaceType = isInterfaceType;
+exports.assertInterfaceType = assertInterfaceType;
+exports.isUnionType = isUnionType;
+exports.assertUnionType = assertUnionType;
+exports.isEnumType = isEnumType;
+exports.assertEnumType = assertEnumType;
+exports.isInputObjectType = isInputObjectType;
+exports.assertInputObjectType = assertInputObjectType;
+exports.isListType = isListType;
+exports.assertListType = assertListType;
+exports.isNonNullType = isNonNullType;
+exports.assertNonNullType = assertNonNullType;
+exports.isInputType = isInputType;
+exports.assertInputType = assertInputType;
+exports.isOutputType = isOutputType;
+exports.assertOutputType = assertOutputType;
+exports.isLeafType = isLeafType;
+exports.assertLeafType = assertLeafType;
+exports.isCompositeType = isCompositeType;
+exports.assertCompositeType = assertCompositeType;
+exports.isAbstractType = isAbstractType;
+exports.assertAbstractType = assertAbstractType;
 exports.GraphQLList = GraphQLList;
 exports.GraphQLNonNull = GraphQLNonNull;
-exports.GraphQLUnionType = exports.GraphQLScalarType = exports.GraphQLObjectType = void 0;
-exports.argsToArgsConfig = argsToArgsConfig;
-exports.assertAbstractType = assertAbstractType;
-exports.assertCompositeType = assertCompositeType;
-exports.assertEnumType = assertEnumType;
-exports.assertInputObjectType = assertInputObjectType;
-exports.assertInputType = assertInputType;
-exports.assertInterfaceType = assertInterfaceType;
-exports.assertLeafType = assertLeafType;
-exports.assertListType = assertListType;
-exports.assertNamedType = assertNamedType;
-exports.assertNonNullType = assertNonNullType;
-exports.assertNullableType = assertNullableType;
-exports.assertObjectType = assertObjectType;
-exports.assertOutputType = assertOutputType;
-exports.assertScalarType = assertScalarType;
-exports.assertType = assertType;
-exports.assertUnionType = assertUnionType;
+exports.isWrappingType = isWrappingType;
 exports.assertWrappingType = assertWrappingType;
-exports.getNamedType = getNamedType;
-exports.getNullableType = getNullableType;
-exports.isAbstractType = isAbstractType;
-exports.isCompositeType = isCompositeType;
-exports.isEnumType = isEnumType;
-exports.isInputObjectType = isInputObjectType;
-exports.isInputType = isInputType;
-exports.isInterfaceType = isInterfaceType;
-exports.isLeafType = isLeafType;
-exports.isListType = isListType;
-exports.isNamedType = isNamedType;
-exports.isNonNullType = isNonNullType;
 exports.isNullableType = isNullableType;
-exports.isObjectType = isObjectType;
-exports.isOutputType = isOutputType;
+exports.assertNullableType = assertNullableType;
+exports.getNullableType = getNullableType;
+exports.isNamedType = isNamedType;
+exports.assertNamedType = assertNamedType;
+exports.getNamedType = getNamedType;
+exports.argsToArgsConfig = argsToArgsConfig;
 exports.isRequiredArgument = isRequiredArgument;
 exports.isRequiredInputField = isRequiredInputField;
-exports.isScalarType = isScalarType;
-exports.isType = isType;
-exports.isUnionType = isUnionType;
-exports.isWrappingType = isWrappingType;
+exports.GraphQLInputObjectType = exports.GraphQLEnumType = exports.GraphQLUnionType = exports.GraphQLInterfaceType = exports.GraphQLObjectType = exports.GraphQLScalarType = void 0;
 
 var _objectEntries = _interopRequireDefault(require("../polyfills/objectEntries.js"));
 
@@ -87,7 +86,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 function isType(type) {
   return isScalarType(type) || isObjectType(type) || isInterfaceType(type) || isUnionType(type) || isEnumType(type) || isInputObjectType(type) || isListType(type) || isNonNullType(type);

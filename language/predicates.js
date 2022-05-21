@@ -6,12 +6,12 @@ Object.defineProperty(exports, "__esModule", {
 exports.isDefinitionNode = isDefinitionNode;
 exports.isExecutableDefinitionNode = isExecutableDefinitionNode;
 exports.isSelectionNode = isSelectionNode;
-exports.isTypeDefinitionNode = isTypeDefinitionNode;
-exports.isTypeExtensionNode = isTypeExtensionNode;
+exports.isValueNode = isValueNode;
 exports.isTypeNode = isTypeNode;
 exports.isTypeSystemDefinitionNode = isTypeSystemDefinitionNode;
+exports.isTypeDefinitionNode = isTypeDefinitionNode;
 exports.isTypeSystemExtensionNode = isTypeSystemExtensionNode;
-exports.isValueNode = isValueNode;
+exports.isTypeExtensionNode = isTypeExtensionNode;
 
 var _kinds = require("./kinds.js");
 

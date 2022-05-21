@@ -3,14 +3,14 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.assertValidExecutionArguments = assertValidExecutionArguments;
-exports.buildExecutionContext = buildExecutionContext;
-exports.buildResolveInfo = buildResolveInfo;
-exports.collectFields = collectFields;
-exports.defaultTypeResolver = exports.defaultFieldResolver = void 0;
 exports.execute = execute;
 exports.executeSync = executeSync;
+exports.assertValidExecutionArguments = assertValidExecutionArguments;
+exports.buildExecutionContext = buildExecutionContext;
+exports.collectFields = collectFields;
+exports.buildResolveInfo = buildResolveInfo;
 exports.getFieldDef = getFieldDef;
+exports.defaultFieldResolver = exports.defaultTypeResolver = void 0;
 
 var _inspect = _interopRequireDefault(require("../jsutils/inspect.js"));
 
@@ -54,7 +54,7 @@ var _values = require("./values.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function execute(argsOrSchema, document, rootValue, contextValue, variableValues, operationName, fieldResolver, typeResolver) {
   /* eslint-enable no-redeclare */
@@ -611,8 +611,11 @@ function completeObjectFlat(object, returnType) {
       var value = object[key];
 
       if (_typeof(value) === 'object' && value !== null) {
-        (function () {
+        var _ret = function () {
           var field = returnType._fields[key];
+          if (!field) return {
+            v: void 0
+          };
           var type = innerFieldType(field.type);
 
           if (!!type._fields) {
@@ -624,7 +627,9 @@ function completeObjectFlat(object, returnType) {
               completeObjectFlat(value, type);
             }
           }
-        })();
+        }();
+
+        if (_typeof(_ret) === "object") return _ret.v;
       }
     }
   }

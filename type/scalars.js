@@ -3,9 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.GraphQLString = exports.GraphQLInt = exports.GraphQLID = exports.GraphQLFloat = exports.GraphQLBoolean = void 0;
 exports.isSpecifiedScalarType = isSpecifiedScalarType;
-exports.specifiedScalarTypes = void 0;
+exports.specifiedScalarTypes = exports.GraphQLID = exports.GraphQLBoolean = exports.GraphQLString = exports.GraphQLFloat = exports.GraphQLInt = void 0;
 
 var _isFinite = _interopRequireDefault(require("../polyfills/isFinite.js"));
 

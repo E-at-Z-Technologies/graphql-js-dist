@@ -1,4 +1,4 @@
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 import inspect from "../jsutils/inspect.mjs";
 import memoize3 from "../jsutils/memoize3.mjs";
@@ -598,8 +598,11 @@ function completeObjectFlat(object, returnType) {
       var value = object[key];
 
       if (_typeof(value) === 'object' && value !== null) {
-        (function () {
+        var _ret = function () {
           var field = returnType._fields[key];
+          if (!field) return {
+            v: void 0
+          };
           var type = innerFieldType(field.type);
 
           if (!!type._fields) {
@@ -611,7 +614,9 @@ function completeObjectFlat(object, returnType) {
               completeObjectFlat(value, type);
             }
           }
-        })();
+        }();
+
+        if (_typeof(_ret) === "object") return _ret.v;
       }
     }
   }

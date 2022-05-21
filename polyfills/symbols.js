@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.SYMBOL_TO_STRING_TAG = exports.SYMBOL_ITERATOR = exports.SYMBOL_ASYNC_ITERATOR = void 0;
+exports.SYMBOL_TO_STRING_TAG = exports.SYMBOL_ASYNC_ITERATOR = exports.SYMBOL_ITERATOR = void 0;
 // In ES2015 (or a polyfilled) environment, this will be Symbol.iterator
 // istanbul ignore next (See: 'https://github.com/graphql/graphql-js/issues/2317')
 var SYMBOL_ITERATOR = typeof Symbol === 'function' && Symbol.iterator != null ? Symbol.iterator : '@@iterator'; // In ES2017 (or a polyfilled) environment, this will be Symbol.asyncIterator
