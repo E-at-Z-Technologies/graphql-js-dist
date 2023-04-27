@@ -5,30 +5,37 @@ import { GraphQLError } from '../../error/GraphQLError.mjs';
  * A GraphQL document is only valid if all defined directives have unique names.
  */
 export function UniqueDirectiveNamesRule(context) {
-  const knownDirectiveNames = new Map();
+  const knownDirectiveNames = Object.create(null);
   const schema = context.getSchema();
   return {
     DirectiveDefinition(node) {
       const directiveName = node.name.value;
-      if (schema?.getDirective(directiveName)) {
+      if (
+        schema !== null &&
+        schema !== void 0 &&
+        schema.getDirective(directiveName)
+      ) {
         context.reportError(
           new GraphQLError(
             `Directive "@${directiveName}" already exists in the schema. It cannot be redefined.`,
-            { nodes: node.name },
+            {
+              nodes: node.name,
+            },
           ),
         );
         return;
       }
-      const knownName = knownDirectiveNames.get(directiveName);
-      if (knownName) {
+      if (knownDirectiveNames[directiveName]) {
         context.reportError(
           new GraphQLError(
             `There can be only one directive named "@${directiveName}".`,
-            { nodes: [knownName, node.name] },
+            {
+              nodes: [knownDirectiveNames[directiveName], node.name],
+            },
           ),
         );
       } else {
-        knownDirectiveNames.set(directiveName, node.name);
+        knownDirectiveNames[directiveName] = node.name;
       }
       return false;
     },

@@ -2,11 +2,10 @@
  * An exported enum describing the different kinds of tokens that the
  * lexer emits.
  */
-export declare enum TokenKind {
+declare enum TokenKind {
   SOF = '<SOF>',
   EOF = '<EOF>',
   BANG = '!',
-  QUESTION_MARK = '?',
   DOLLAR = '$',
   AMP = '&',
   PAREN_L = '(',
@@ -27,3 +26,10 @@ export declare enum TokenKind {
   BLOCK_STRING = 'BlockString',
   COMMENT = 'Comment',
 }
+export { TokenKind };
+/**
+ * The enum type representing the token kinds values.
+ *
+ * @deprecated Please use `TokenKind`. Will be remove in v17.
+ */
+export type TokenKindEnum = typeof TokenKind;

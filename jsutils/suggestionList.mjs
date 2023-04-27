@@ -1,4 +1,5 @@
 import { naturalCompare } from './naturalCompare.mjs';
+
 /**
  * Given an invalid input string and a list of valid options, returns a filtered
  * list of valid options sorted based on their similarity with the input.
@@ -18,6 +19,7 @@ export function suggestionList(input, options) {
     return distanceDiff !== 0 ? distanceDiff : naturalCompare(a, b);
   });
 }
+
 /**
  * Computes the lexical distance between strings A and B.
  *
@@ -48,6 +50,7 @@ class LexicalDistance {
       return 0;
     }
     const optionLowerCase = option.toLowerCase();
+
     // Any case change counts as a single edit
     if (this._inputLowerCase === optionLowerCase) {
       return 1;
@@ -75,10 +78,13 @@ class LexicalDistance {
       for (let j = 1; j <= bLength; j++) {
         const cost = a[i - 1] === b[j - 1] ? 0 : 1;
         let currentCell = Math.min(
-          upRow[j] + 1, // delete
-          currentRow[j - 1] + 1, // insert
-          upRow[j - 1] + cost,
+          upRow[j] + 1,
+          // delete
+          currentRow[j - 1] + 1,
+          // insert
+          upRow[j - 1] + cost, // substitute
         );
+
         if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
           // transposition
           const doubleDiagonalCell = rows[(i - 2) % 3][j - 2];
@@ -89,6 +95,7 @@ class LexicalDistance {
         }
         currentRow[j] = currentCell;
       }
+
       // Early exit, since distance can't go smaller than smallest element of the previous row.
       if (smallestCell > threshold) {
         return undefined;

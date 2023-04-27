@@ -2,12 +2,11 @@
  * An exported enum describing the different kinds of tokens that the
  * lexer emits.
  */
-export var TokenKind;
+var TokenKind;
 (function (TokenKind) {
   TokenKind['SOF'] = '<SOF>';
   TokenKind['EOF'] = '<EOF>';
   TokenKind['BANG'] = '!';
-  TokenKind['QUESTION_MARK'] = '?';
   TokenKind['DOLLAR'] = '$';
   TokenKind['AMP'] = '&';
   TokenKind['PAREN_L'] = '(';
@@ -28,3 +27,10 @@ export var TokenKind;
   TokenKind['BLOCK_STRING'] = 'BlockString';
   TokenKind['COMMENT'] = 'Comment';
 })(TokenKind || (TokenKind = {}));
+export { TokenKind };
+
+/**
+ * The enum type representing the token kinds values.
+ *
+ * @deprecated Please use `TokenKind`. Will be remove in v17.
+ */

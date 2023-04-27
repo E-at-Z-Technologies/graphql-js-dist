@@ -25,9 +25,14 @@
  *
  * @packageDocumentation
  */
+
 // The GraphQL.js version info.
 export { version, versionInfo } from './version.mjs';
+
+// The primary entry point into fulfilling a GraphQL request.
+
 export { graphql, graphqlSync } from './graphql.mjs';
+
 // Create and operate on GraphQL type definitions and schema.
 export {
   resolveObjMapThunk,
@@ -57,8 +62,6 @@ export {
   specifiedDirectives,
   GraphQLIncludeDirective,
   GraphQLSkipDirective,
-  GraphQLDeferDirective,
-  GraphQLStreamDirective,
   GraphQLDeprecatedDirective,
   GraphQLSpecifiedByDirective,
   // "Enum" of Type Kinds
@@ -157,6 +160,7 @@ export {
   // Visit
   visit,
   visitInParallel,
+  getVisitFn,
   getEnterLeaveForKind,
   BREAK,
   Kind,
@@ -165,7 +169,6 @@ export {
   isDefinitionNode,
   isExecutableDefinitionNode,
   isSelectionNode,
-  isNullabilityAssertionNode,
   isValueNode,
   isConstValueNode,
   isTypeNode,
@@ -177,7 +180,6 @@ export {
 // Execute GraphQL queries.
 export {
   execute,
-  experimentalExecuteIncrementally,
   executeSync,
   defaultFieldResolver,
   defaultTypeResolver,
@@ -235,7 +237,13 @@ export {
   NoSchemaIntrospectionCustomRule,
 } from './validation/index.mjs';
 // Create, format, and print GraphQL errors.
-export { GraphQLError, syntaxError, locatedError } from './error/index.mjs';
+export {
+  GraphQLError,
+  syntaxError,
+  locatedError,
+  printError,
+  formatError,
+} from './error/index.mjs';
 // Utilities for operating on GraphQL type schema and parsed sources.
 export {
   // Produce the GraphQL query recommended for a full schema introspection.
@@ -243,6 +251,8 @@ export {
   getIntrospectionQuery,
   // Gets the target Operation from a Document.
   getOperationAST,
+  // Gets the Type for the target Operation AST.
+  getOperationRootType,
   // Convert a GraphQLSchema to an IntrospectionQuery.
   introspectionFromSchema,
   // Build a GraphQLSchema from an introspection result.
@@ -259,8 +269,6 @@ export {
   printSchema,
   // Print a GraphQLType to GraphQL Schema language.
   printType,
-  // Print a GraphQLDirective to GraphQL Schema language.
-  printDirective,
   // Prints the built-in introspection schema in the Schema Language format.
   printIntrospectionSchema,
   // Create a GraphQLType from a GraphQL language AST.
@@ -286,6 +294,10 @@ export {
   isEqualType,
   isTypeSubTypeOf,
   doTypesOverlap,
+  // Asserts a string is a valid GraphQL name.
+  assertValidName,
+  // Determine if a string is a valid GraphQL name.
+  isValidNameError,
   // Compares two GraphQLSchemas and detects breaking changes.
   BreakingChangeType,
   DangerousChangeType,

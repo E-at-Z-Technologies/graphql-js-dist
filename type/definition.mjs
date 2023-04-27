@@ -3,6 +3,7 @@ import { didYouMean } from '../jsutils/didYouMean.mjs';
 import { identityFunc } from '../jsutils/identityFunc.mjs';
 import { inspect } from '../jsutils/inspect.mjs';
 import { instanceOf } from '../jsutils/instanceOf.mjs';
+import { isObjectLike } from '../jsutils/isObjectLike.mjs';
 import { keyMap } from '../jsutils/keyMap.mjs';
 import { keyValMap } from '../jsutils/keyValMap.mjs';
 import { mapValue } from '../jsutils/mapValue.mjs';
@@ -31,6 +32,7 @@ export function assertType(type) {
   }
   return type;
 }
+
 /**
  * There are predicates for each kind of GraphQL type.
  */
@@ -110,6 +112,11 @@ export function assertNonNullType(type) {
   }
   return type;
 }
+
+/**
+ * These types may be used as input types for arguments and directives.
+ */
+
 export function isInputType(type) {
   return (
     isScalarType(type) ||
@@ -124,6 +131,11 @@ export function assertInputType(type) {
   }
   return type;
 }
+
+/**
+ * These types may be used as output types as the result of fields.
+ */
+
 export function isOutputType(type) {
   return (
     isScalarType(type) ||
@@ -140,6 +152,11 @@ export function assertOutputType(type) {
   }
   return type;
 }
+
+/**
+ * These types may describe types which may be leaf values.
+ */
+
 export function isLeafType(type) {
   return isScalarType(type) || isEnumType(type);
 }
@@ -149,6 +166,11 @@ export function assertLeafType(type) {
   }
   return type;
 }
+
+/**
+ * These types may describe the parent context of a selection set.
+ */
+
 export function isCompositeType(type) {
   return isObjectType(type) || isInterfaceType(type) || isUnionType(type);
 }
@@ -160,6 +182,11 @@ export function assertCompositeType(type) {
   }
   return type;
 }
+
+/**
+ * These types may describe the parent context of a selection set.
+ */
+
 export function isAbstractType(type) {
   return isInterfaceType(type) || isUnionType(type);
 }
@@ -169,6 +196,7 @@ export function assertAbstractType(type) {
   }
   return type;
 }
+
 /**
  * List Type Wrapper
  *
@@ -190,6 +218,8 @@ export function assertAbstractType(type) {
  */
 export class GraphQLList {
   constructor(ofType) {
+    isType(ofType) ||
+      devAssert(false, `Expected ${inspect(ofType)} to be a GraphQL type.`);
     this.ofType = ofType;
   }
   get [Symbol.toStringTag]() {
@@ -202,6 +232,7 @@ export class GraphQLList {
     return this.toString();
   }
 }
+
 /**
  * Non-Null Type Wrapper
  *
@@ -225,6 +256,11 @@ export class GraphQLList {
  */
 export class GraphQLNonNull {
   constructor(ofType) {
+    isNullableType(ofType) ||
+      devAssert(
+        false,
+        `Expected ${inspect(ofType)} to be a GraphQL nullable type.`,
+      );
     this.ofType = ofType;
   }
   get [Symbol.toStringTag]() {
@@ -237,6 +273,11 @@ export class GraphQLNonNull {
     return this.toString();
   }
 }
+
+/**
+ * These types wrap and modify other types
+ */
+
 export function isWrappingType(type) {
   return isListType(type) || isNonNullType(type);
 }
@@ -246,6 +287,11 @@ export function assertWrappingType(type) {
   }
   return type;
 }
+
+/**
+ * These types can all accept null as a value.
+ */
+
 export function isNullableType(type) {
   return isType(type) && !isNonNullType(type);
 }
@@ -260,6 +306,11 @@ export function getNullableType(type) {
     return isNonNullType(type) ? type.ofType : type;
   }
 }
+
+/**
+ * These named types do not include modifiers like List or NonNull.
+ */
+
 export function isNamedType(type) {
   return (
     isScalarType(type) ||
@@ -285,12 +336,29 @@ export function getNamedType(type) {
     return unwrappedType;
   }
 }
+
+/**
+ * Used while defining GraphQL types to allow for circular references in
+ * otherwise immutable type definitions.
+ */
+
 export function resolveReadonlyArrayThunk(thunk) {
   return typeof thunk === 'function' ? thunk() : thunk;
 }
 export function resolveObjMapThunk(thunk) {
   return typeof thunk === 'function' ? thunk() : thunk;
 }
+
+/**
+ * Custom extensions
+ *
+ * @remarks
+ * Use a unique identifier name for your extension, for example the name of
+ * your library or project. Do not use a shortened identifier as this increases
+ * the risk of conflicts. We recommend you add at most one extension field,
+ * an object which can contain all the values you need.
+ */
+
 /**
  * Scalar Type Definition
  *
@@ -324,18 +392,49 @@ export function resolveObjMapThunk(thunk) {
  */
 export class GraphQLScalarType {
   constructor(config) {
-    const parseValue = config.parseValue ?? identityFunc;
+    var _config$parseValue,
+      _config$serialize,
+      _config$parseLiteral,
+      _config$extensionASTN;
+    const parseValue =
+      (_config$parseValue = config.parseValue) !== null &&
+      _config$parseValue !== void 0
+        ? _config$parseValue
+        : identityFunc;
     this.name = assertName(config.name);
     this.description = config.description;
     this.specifiedByURL = config.specifiedByURL;
-    this.serialize = config.serialize ?? identityFunc;
+    this.serialize =
+      (_config$serialize = config.serialize) !== null &&
+      _config$serialize !== void 0
+        ? _config$serialize
+        : identityFunc;
     this.parseValue = parseValue;
     this.parseLiteral =
-      config.parseLiteral ??
-      ((node, variables) => parseValue(valueFromASTUntyped(node, variables)));
+      (_config$parseLiteral = config.parseLiteral) !== null &&
+      _config$parseLiteral !== void 0
+        ? _config$parseLiteral
+        : (node, variables) => parseValue(valueFromASTUntyped(node, variables));
     this.extensions = toObjMap(config.extensions);
     this.astNode = config.astNode;
-    this.extensionASTNodes = config.extensionASTNodes ?? [];
+    this.extensionASTNodes =
+      (_config$extensionASTN = config.extensionASTNodes) !== null &&
+      _config$extensionASTN !== void 0
+        ? _config$extensionASTN
+        : [];
+    config.specifiedByURL == null ||
+      typeof config.specifiedByURL === 'string' ||
+      devAssert(
+        false,
+        `${this.name} must provide "specifiedByURL" as a string, ` +
+          `but got: ${inspect(config.specifiedByURL)}.`,
+      );
+    config.serialize == null ||
+      typeof config.serialize === 'function' ||
+      devAssert(
+        false,
+        `${this.name} must provide "serialize" function. If this custom Scalar is also used as an input type, ensure "parseValue" and "parseLiteral" functions are also provided.`,
+      );
     if (config.parseLiteral) {
       (typeof config.parseValue === 'function' &&
         typeof config.parseLiteral === 'function') ||
@@ -410,16 +509,26 @@ export class GraphQLScalarType {
  */
 export class GraphQLObjectType {
   constructor(config) {
+    var _config$extensionASTN2;
     this.name = assertName(config.name);
     this.description = config.description;
     this.isTypeOf = config.isTypeOf;
     this.extensions = toObjMap(config.extensions);
     this.astNode = config.astNode;
-    this.extensionASTNodes = config.extensionASTNodes ?? [];
-    // prettier-ignore
-    // FIXME: blocked by https://github.com/prettier/prettier/issues/14625
-    this._fields = (defineFieldMap).bind(undefined, config.fields);
-    this._interfaces = defineInterfaces.bind(undefined, config.interfaces);
+    this.extensionASTNodes =
+      (_config$extensionASTN2 = config.extensionASTNodes) !== null &&
+      _config$extensionASTN2 !== void 0
+        ? _config$extensionASTN2
+        : [];
+    this._fields = () => defineFieldMap(config);
+    this._interfaces = () => defineInterfaces(config);
+    config.isTypeOf == null ||
+      typeof config.isTypeOf === 'function' ||
+      devAssert(
+        false,
+        `${this.name} must provide "isTypeOf" as a function, ` +
+          `but got: ${inspect(config.isTypeOf)}.`,
+      );
   }
   get [Symbol.toStringTag]() {
     return 'GraphQLObjectType';
@@ -455,13 +564,52 @@ export class GraphQLObjectType {
     return this.toString();
   }
 }
-function defineInterfaces(interfaces) {
-  return resolveReadonlyArrayThunk(interfaces ?? []);
+function defineInterfaces(config) {
+  var _config$interfaces;
+  const interfaces = resolveReadonlyArrayThunk(
+    (_config$interfaces = config.interfaces) !== null &&
+      _config$interfaces !== void 0
+      ? _config$interfaces
+      : [],
+  );
+  Array.isArray(interfaces) ||
+    devAssert(
+      false,
+      `${config.name} interfaces must be an Array or a function which returns an Array.`,
+    );
+  return interfaces;
 }
-function defineFieldMap(fields) {
-  const fieldMap = resolveObjMapThunk(fields);
+function defineFieldMap(config) {
+  const fieldMap = resolveObjMapThunk(config.fields);
+  isPlainObj(fieldMap) ||
+    devAssert(
+      false,
+      `${config.name} fields must be an object with field names as keys or a function which returns such an object.`,
+    );
   return mapValue(fieldMap, (fieldConfig, fieldName) => {
-    const argsConfig = fieldConfig.args ?? {};
+    var _fieldConfig$args;
+    isPlainObj(fieldConfig) ||
+      devAssert(
+        false,
+        `${config.name}.${fieldName} field config must be an object.`,
+      );
+    fieldConfig.resolve == null ||
+      typeof fieldConfig.resolve === 'function' ||
+      devAssert(
+        false,
+        `${config.name}.${fieldName} field resolver must be a function if ` +
+          `provided, but got: ${inspect(fieldConfig.resolve)}.`,
+      );
+    const argsConfig =
+      (_fieldConfig$args = fieldConfig.args) !== null &&
+      _fieldConfig$args !== void 0
+        ? _fieldConfig$args
+        : {};
+    isPlainObj(argsConfig) ||
+      devAssert(
+        false,
+        `${config.name}.${fieldName} args must be an object with argument names as keys.`,
+      );
     return {
       name: assertName(fieldName),
       description: fieldConfig.description,
@@ -475,8 +623,8 @@ function defineFieldMap(fields) {
     };
   });
 }
-export function defineArguments(args) {
-  return Object.entries(args).map(([argName, argConfig]) => ({
+export function defineArguments(config) {
+  return Object.entries(config).map(([argName, argConfig]) => ({
     name: assertName(argName),
     description: argConfig.description,
     type: argConfig.type,
@@ -485,6 +633,9 @@ export function defineArguments(args) {
     extensions: toObjMap(argConfig.extensions),
     astNode: argConfig.astNode,
   }));
+}
+function isPlainObj(obj) {
+  return isObjectLike(obj) && !Array.isArray(obj);
 }
 function fieldsToFieldsConfig(fields) {
   return mapValue(fields, (field) => ({
@@ -498,6 +649,7 @@ function fieldsToFieldsConfig(fields) {
     astNode: field.astNode,
   }));
 }
+
 /**
  * @internal
  */
@@ -539,16 +691,26 @@ export function isRequiredArgument(arg) {
  */
 export class GraphQLInterfaceType {
   constructor(config) {
+    var _config$extensionASTN3;
     this.name = assertName(config.name);
     this.description = config.description;
     this.resolveType = config.resolveType;
     this.extensions = toObjMap(config.extensions);
     this.astNode = config.astNode;
-    this.extensionASTNodes = config.extensionASTNodes ?? [];
-    // prettier-ignore
-    // FIXME: blocked by https://github.com/prettier/prettier/issues/14625
-    this._fields = (defineFieldMap).bind(undefined, config.fields);
-    this._interfaces = defineInterfaces.bind(undefined, config.interfaces);
+    this.extensionASTNodes =
+      (_config$extensionASTN3 = config.extensionASTNodes) !== null &&
+      _config$extensionASTN3 !== void 0
+        ? _config$extensionASTN3
+        : [];
+    this._fields = defineFieldMap.bind(undefined, config);
+    this._interfaces = defineInterfaces.bind(undefined, config);
+    config.resolveType == null ||
+      typeof config.resolveType === 'function' ||
+      devAssert(
+        false,
+        `${this.name} must provide "resolveType" as a function, ` +
+          `but got: ${inspect(config.resolveType)}.`,
+      );
   }
   get [Symbol.toStringTag]() {
     return 'GraphQLInterfaceType';
@@ -610,13 +772,25 @@ export class GraphQLInterfaceType {
  */
 export class GraphQLUnionType {
   constructor(config) {
+    var _config$extensionASTN4;
     this.name = assertName(config.name);
     this.description = config.description;
     this.resolveType = config.resolveType;
     this.extensions = toObjMap(config.extensions);
     this.astNode = config.astNode;
-    this.extensionASTNodes = config.extensionASTNodes ?? [];
-    this._types = defineTypes.bind(undefined, config.types);
+    this.extensionASTNodes =
+      (_config$extensionASTN4 = config.extensionASTNodes) !== null &&
+      _config$extensionASTN4 !== void 0
+        ? _config$extensionASTN4
+        : [];
+    this._types = defineTypes.bind(undefined, config);
+    config.resolveType == null ||
+      typeof config.resolveType === 'function' ||
+      devAssert(
+        false,
+        `${this.name} must provide "resolveType" as a function, ` +
+          `but got: ${inspect(config.resolveType)}.`,
+      );
   }
   get [Symbol.toStringTag]() {
     return 'GraphQLUnionType';
@@ -645,8 +819,14 @@ export class GraphQLUnionType {
     return this.toString();
   }
 }
-function defineTypes(types) {
-  return resolveReadonlyArrayThunk(types);
+function defineTypes(config) {
+  const types = resolveReadonlyArrayThunk(config.types);
+  Array.isArray(types) ||
+    devAssert(
+      false,
+      `Must provide Array of types or a function which returns such an array for Union ${config.name}.`,
+    );
+  return types;
 }
 /**
  * Enum Type Definition
@@ -673,21 +853,17 @@ function defineTypes(types) {
  */
 export class GraphQLEnumType /* <T> */ {
   constructor(config) {
+    var _config$extensionASTN5;
     this.name = assertName(config.name);
     this.description = config.description;
     this.extensions = toObjMap(config.extensions);
     this.astNode = config.astNode;
-    this.extensionASTNodes = config.extensionASTNodes ?? [];
-    this._values = Object.entries(config.values).map(
-      ([valueName, valueConfig]) => ({
-        name: assertEnumValueName(valueName),
-        description: valueConfig.description,
-        value: valueConfig.value !== undefined ? valueConfig.value : valueName,
-        deprecationReason: valueConfig.deprecationReason,
-        extensions: toObjMap(valueConfig.extensions),
-        astNode: valueConfig.astNode,
-      }),
-    );
+    this.extensionASTNodes =
+      (_config$extensionASTN5 = config.extensionASTNodes) !== null &&
+      _config$extensionASTN5 !== void 0
+        ? _config$extensionASTN5
+        : [];
+    this._values = defineEnumValues(this.name, config.values);
     this._valueLookup = new Map(
       this._values.map((enumValue) => [enumValue.value, enumValue]),
     );
@@ -702,7 +878,7 @@ export class GraphQLEnumType /* <T> */ {
   getValue(name) {
     return this._nameLookup[name];
   }
-  serialize(outputValue /* T */) {
+  serialize(outputValue) {
     const enumValue = this._valueLookup.get(outputValue);
     if (enumValue === undefined) {
       throw new GraphQLError(
@@ -711,7 +887,7 @@ export class GraphQLEnumType /* <T> */ {
     }
     return enumValue.name;
   }
-  parseValue(inputValue) {
+  parseValue(inputValue) /* T */ {
     if (typeof inputValue !== 'string') {
       const valueStr = inspect(inputValue);
       throw new GraphQLError(
@@ -728,14 +904,16 @@ export class GraphQLEnumType /* <T> */ {
     }
     return enumValue.value;
   }
-  parseLiteral(valueNode, _variables) {
+  parseLiteral(valueNode, _variables) /* T */ {
     // Note: variables will be resolved to a value before calling this function.
     if (valueNode.kind !== Kind.ENUM) {
       const valueStr = print(valueNode);
       throw new GraphQLError(
         `Enum "${this.name}" cannot represent non-enum value: ${valueStr}.` +
           didYouMeanEnumValue(this, valueStr),
-        { nodes: valueNode },
+        {
+          nodes: valueNode,
+        },
       );
     }
     const enumValue = this.getValue(valueNode.value);
@@ -744,7 +922,9 @@ export class GraphQLEnumType /* <T> */ {
       throw new GraphQLError(
         `Value "${valueStr}" does not exist in "${this.name}" enum.` +
           didYouMeanEnumValue(this, valueStr),
-        { nodes: valueNode },
+        {
+          nodes: valueNode,
+        },
       );
     }
     return enumValue.value;
@@ -782,6 +962,29 @@ function didYouMeanEnumValue(enumType, unknownValueStr) {
   const suggestedValues = suggestionList(unknownValueStr, allNames);
   return didYouMean('the enum value', suggestedValues);
 }
+function defineEnumValues(typeName, valueMap) {
+  isPlainObj(valueMap) ||
+    devAssert(
+      false,
+      `${typeName} values must be an object with value names as keys.`,
+    );
+  return Object.entries(valueMap).map(([valueName, valueConfig]) => {
+    isPlainObj(valueConfig) ||
+      devAssert(
+        false,
+        `${typeName}.${valueName} must refer to an object with a "value" key ` +
+          `representing an internal value but got: ${inspect(valueConfig)}.`,
+      );
+    return {
+      name: assertEnumValueName(valueName),
+      description: valueConfig.description,
+      value: valueConfig.value !== undefined ? valueConfig.value : valueName,
+      deprecationReason: valueConfig.deprecationReason,
+      extensions: toObjMap(valueConfig.extensions),
+      astNode: valueConfig.astNode,
+    };
+  });
+}
 /**
  * Input Object Type Definition
  *
@@ -805,12 +1008,17 @@ function didYouMeanEnumValue(enumType, unknownValueStr) {
  */
 export class GraphQLInputObjectType {
   constructor(config) {
+    var _config$extensionASTN6;
     this.name = assertName(config.name);
     this.description = config.description;
     this.extensions = toObjMap(config.extensions);
     this.astNode = config.astNode;
-    this.extensionASTNodes = config.extensionASTNodes ?? [];
-    this._fields = defineInputFieldMap.bind(undefined, config.fields);
+    this.extensionASTNodes =
+      (_config$extensionASTN6 = config.extensionASTNodes) !== null &&
+      _config$extensionASTN6 !== void 0
+        ? _config$extensionASTN6
+        : [];
+    this._fields = defineInputFieldMap.bind(undefined, config);
   }
   get [Symbol.toStringTag]() {
     return 'GraphQLInputObjectType';
@@ -846,17 +1054,29 @@ export class GraphQLInputObjectType {
     return this.toString();
   }
 }
-function defineInputFieldMap(fields) {
-  const fieldMap = resolveObjMapThunk(fields);
-  return mapValue(fieldMap, (fieldConfig, fieldName) => ({
-    name: assertName(fieldName),
-    description: fieldConfig.description,
-    type: fieldConfig.type,
-    defaultValue: fieldConfig.defaultValue,
-    deprecationReason: fieldConfig.deprecationReason,
-    extensions: toObjMap(fieldConfig.extensions),
-    astNode: fieldConfig.astNode,
-  }));
+function defineInputFieldMap(config) {
+  const fieldMap = resolveObjMapThunk(config.fields);
+  isPlainObj(fieldMap) ||
+    devAssert(
+      false,
+      `${config.name} fields must be an object with field names as keys or a function which returns such an object.`,
+    );
+  return mapValue(fieldMap, (fieldConfig, fieldName) => {
+    !('resolve' in fieldConfig) ||
+      devAssert(
+        false,
+        `${config.name}.${fieldName} field has a resolve property, but Input Types cannot define resolvers.`,
+      );
+    return {
+      name: assertName(fieldName),
+      description: fieldConfig.description,
+      type: fieldConfig.type,
+      defaultValue: fieldConfig.defaultValue,
+      deprecationReason: fieldConfig.deprecationReason,
+      extensions: toObjMap(fieldConfig.extensions),
+      astNode: fieldConfig.astNode,
+    };
+  });
 }
 export function isRequiredInputField(field) {
   return isNonNullType(field.type) && field.defaultValue === undefined;

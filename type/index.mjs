@@ -73,8 +73,6 @@ export {
   specifiedDirectives,
   GraphQLIncludeDirective,
   GraphQLSkipDirective,
-  GraphQLDeferDirective,
-  GraphQLStreamDirective,
   GraphQLDeprecatedDirective,
   GraphQLSpecifiedByDirective,
   // Constant Deprecation Reason
@@ -115,7 +113,9 @@ export {
   TypeMetaFieldDef,
   TypeNameMetaFieldDef,
 } from './introspection.mjs';
+
 // Validate GraphQL schema.
 export { validateSchema, assertValidSchema } from './validate.mjs';
+
 // Upholds the spec rules about naming.
 export { assertName, assertEnumValueName } from './assertName.mjs';

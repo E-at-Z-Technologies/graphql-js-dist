@@ -1,7 +1,10 @@
 'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.NoFragmentCyclesRule = void 0;
-const GraphQLError_js_1 = require('../../error/GraphQLError.js');
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.NoFragmentCyclesRule = NoFragmentCyclesRule;
+var _GraphQLError = require('../../error/GraphQLError.js');
 /**
  * No fragment cycles
  *
@@ -13,9 +16,11 @@ const GraphQLError_js_1 = require('../../error/GraphQLError.js');
 function NoFragmentCyclesRule(context) {
   // Tracks already visited fragments to maintain O(N) and to ensure that cycles
   // are not redundantly reported.
-  const visitedFrags = new Set();
+  const visitedFrags = Object.create(null);
+
   // Array of AST nodes used to produce meaningful errors
   const spreadPath = [];
+
   // Position in the spread path
   const spreadPathIndexByName = Object.create(null);
   return {
@@ -25,15 +30,16 @@ function NoFragmentCyclesRule(context) {
       return false;
     },
   };
+
   // This does a straight-forward DFS to find cycles.
   // It does not terminate when a cycle was found but continues to explore
   // the graph to find all possible cycles.
   function detectCycleRecursive(fragment) {
-    if (visitedFrags.has(fragment.name.value)) {
+    if (visitedFrags[fragment.name.value]) {
       return;
     }
     const fragmentName = fragment.name.value;
-    visitedFrags.add(fragmentName);
+    visitedFrags[fragmentName] = true;
     const spreadNodes = context.getFragmentSpreads(fragment.selectionSet);
     if (spreadNodes.length === 0) {
       return;
@@ -55,10 +61,12 @@ function NoFragmentCyclesRule(context) {
           .map((s) => '"' + s.name.value + '"')
           .join(', ');
         context.reportError(
-          new GraphQLError_js_1.GraphQLError(
+          new _GraphQLError.GraphQLError(
             `Cannot spread fragment "${spreadName}" within itself` +
               (viaPath !== '' ? ` via ${viaPath}.` : '.'),
-            { nodes: cyclePath },
+            {
+              nodes: cyclePath,
+            },
           ),
         );
       }
@@ -67,4 +75,3 @@ function NoFragmentCyclesRule(context) {
     spreadPathIndexByName[fragmentName] = undefined;
   }
 }
-exports.NoFragmentCyclesRule = NoFragmentCyclesRule;

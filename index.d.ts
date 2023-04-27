@@ -25,9 +25,9 @@
  *
  * @packageDocumentation
  */
-export { version, versionInfo } from './version.js';
-export type { GraphQLArgs } from './graphql.js';
-export { graphql, graphqlSync } from './graphql.js';
+export { version, versionInfo } from './version';
+export type { GraphQLArgs } from './graphql';
+export { graphql, graphqlSync } from './graphql';
 export {
   resolveObjMapThunk,
   resolveReadonlyArrayThunk,
@@ -52,8 +52,6 @@ export {
   specifiedDirectives,
   GraphQLIncludeDirective,
   GraphQLSkipDirective,
-  GraphQLDeferDirective,
-  GraphQLStreamDirective,
   GraphQLDeprecatedDirective,
   GraphQLSpecifiedByDirective,
   TypeKind,
@@ -119,7 +117,7 @@ export {
   assertValidSchema,
   assertName,
   assertEnumValueName,
-} from './type/index.js';
+} from './type/index';
 export type {
   GraphQLType,
   GraphQLInputType,
@@ -129,8 +127,6 @@ export type {
   GraphQLAbstractType,
   GraphQLWrappingType,
   GraphQLNullableType,
-  GraphQLNullableInputType,
-  GraphQLNullableOutputType,
   GraphQLNamedType,
   GraphQLNamedInputType,
   GraphQLNamedOutputType,
@@ -178,7 +174,7 @@ export type {
   GraphQLScalarSerializer,
   GraphQLScalarValueParser,
   GraphQLScalarLiteralParser,
-} from './type/index.js';
+} from './type/index';
 export {
   Token,
   Source,
@@ -196,6 +192,7 @@ export {
   print,
   visit,
   visitInParallel,
+  getVisitFn,
   getEnterLeaveForKind,
   BREAK,
   Kind,
@@ -203,7 +200,6 @@ export {
   isDefinitionNode,
   isExecutableDefinitionNode,
   isSelectionNode,
-  isNullabilityAssertionNode,
   isValueNode,
   isConstValueNode,
   isTypeNode,
@@ -211,10 +207,13 @@ export {
   isTypeDefinitionNode,
   isTypeSystemExtensionNode,
   isTypeExtensionNode,
-} from './language/index.js';
+} from './language/index';
 export type {
   ParseOptions,
   SourceLocation,
+  TokenKindEnum,
+  KindEnum,
+  DirectiveLocationEnum,
   ASTVisitor,
   ASTVisitFn,
   ASTVisitorKeyMap,
@@ -231,10 +230,6 @@ export type {
   SelectionNode,
   FieldNode,
   ArgumentNode,
-  NullabilityAssertionNode,
-  NonNullAssertionNode,
-  ErrorBoundaryNode,
-  ListNullabilityOperatorNode,
   ConstArgumentNode,
   FragmentSpreadNode,
   InlineFragmentNode,
@@ -282,10 +277,9 @@ export type {
   UnionTypeExtensionNode,
   EnumTypeExtensionNode,
   InputObjectTypeExtensionNode,
-} from './language/index.js';
+} from './language/index';
 export {
   execute,
-  experimentalExecuteIncrementally,
   executeSync,
   defaultFieldResolver,
   defaultTypeResolver,
@@ -295,23 +289,13 @@ export {
   getDirectiveValues,
   subscribe,
   createSourceEventStream,
-} from './execution/index.js';
+} from './execution/index';
 export type {
   ExecutionArgs,
   ExecutionResult,
-  ExperimentalIncrementalExecutionResults,
-  InitialIncrementalExecutionResult,
-  SubsequentIncrementalExecutionResult,
-  IncrementalDeferResult,
-  IncrementalStreamResult,
-  IncrementalResult,
   FormattedExecutionResult,
-  FormattedInitialIncrementalExecutionResult,
-  FormattedSubsequentIncrementalExecutionResult,
-  FormattedIncrementalDeferResult,
-  FormattedIncrementalStreamResult,
-  FormattedIncrementalResult,
-} from './execution/index.js';
+} from './execution/index';
+export type { SubscriptionArgs } from './subscription/index';
 export {
   validate,
   ValidationContext,
@@ -352,17 +336,24 @@ export {
   PossibleTypeExtensionsRule,
   NoDeprecatedCustomRule,
   NoSchemaIntrospectionCustomRule,
-} from './validation/index.js';
-export type { ValidationRule } from './validation/index.js';
-export { GraphQLError, syntaxError, locatedError } from './error/index.js';
+} from './validation/index';
+export type { ValidationRule } from './validation/index';
+export {
+  GraphQLError,
+  syntaxError,
+  locatedError,
+  printError,
+  formatError,
+} from './error/index';
 export type {
   GraphQLErrorOptions,
   GraphQLFormattedError,
   GraphQLErrorExtensions,
-} from './error/index.js';
+} from './error/index';
 export {
   getIntrospectionQuery,
   getOperationAST,
+  getOperationRootType,
   introspectionFromSchema,
   buildClientSchema,
   buildASTSchema,
@@ -371,7 +362,6 @@ export {
   lexicographicSortSchema,
   printSchema,
   printType,
-  printDirective,
   printIntrospectionSchema,
   typeFromAST,
   valueFromAST,
@@ -386,11 +376,13 @@ export {
   isEqualType,
   isTypeSubTypeOf,
   doTypesOverlap,
+  assertValidName,
+  isValidNameError,
   BreakingChangeType,
   DangerousChangeType,
   findBreakingChanges,
   findDangerousChanges,
-} from './utilities/index.js';
+} from './utilities/index';
 export type {
   IntrospectionOptions,
   IntrospectionQuery,
@@ -418,4 +410,4 @@ export type {
   BreakingChange,
   DangerousChange,
   TypedQueryDocumentNode,
-} from './utilities/index.js';
+} from './utilities/index';

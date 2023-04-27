@@ -1,5 +1,6 @@
 import { inspect } from '../jsutils/inspect.mjs';
 import { invariant } from '../jsutils/invariant.mjs';
+import { keyMap } from '../jsutils/keyMap.mjs';
 import { Kind } from '../language/kinds.mjs';
 import {
   isInputObjectType,
@@ -7,6 +8,7 @@ import {
   isListType,
   isNonNullType,
 } from '../type/definition.mjs';
+
 /**
  * Produces a JavaScript value given a GraphQL Value AST.
  *
@@ -52,6 +54,7 @@ export function valueFromAST(valueNode, type, variables) {
     if (valueNode.kind === Kind.NULL) {
       return; // Invalid: intentionally return no value.
     }
+
     return valueFromAST(valueNode, type.ofType, variables);
   }
   if (valueNode.kind === Kind.NULL) {
@@ -69,12 +72,14 @@ export function valueFromAST(valueNode, type, variables) {
           if (isNonNullType(itemType)) {
             return; // Invalid: intentionally return no value.
           }
+
           coercedValues.push(null);
         } else {
           const itemValue = valueFromAST(itemNode, itemType, variables);
           if (itemValue === undefined) {
             return; // Invalid: intentionally return no value.
           }
+
           coercedValues.push(itemValue);
         }
       }
@@ -84,30 +89,32 @@ export function valueFromAST(valueNode, type, variables) {
     if (coercedValue === undefined) {
       return; // Invalid: intentionally return no value.
     }
+
     return [coercedValue];
   }
   if (isInputObjectType(type)) {
     if (valueNode.kind !== Kind.OBJECT) {
       return; // Invalid: intentionally return no value.
     }
+
     const coercedObj = Object.create(null);
-    const fieldNodes = new Map(
-      valueNode.fields.map((field) => [field.name.value, field]),
-    );
+    const fieldNodes = keyMap(valueNode.fields, (field) => field.name.value);
     for (const field of Object.values(type.getFields())) {
-      const fieldNode = fieldNodes.get(field.name);
-      if (fieldNode == null || isMissingVariable(fieldNode.value, variables)) {
+      const fieldNode = fieldNodes[field.name];
+      if (!fieldNode || isMissingVariable(fieldNode.value, variables)) {
         if (field.defaultValue !== undefined) {
           coercedObj[field.name] = field.defaultValue;
         } else if (isNonNullType(field.type)) {
           return; // Invalid: intentionally return no value.
         }
+
         continue;
       }
       const fieldValue = valueFromAST(fieldNode.value, field.type, variables);
       if (fieldValue === undefined) {
         return; // Invalid: intentionally return no value.
       }
+
       coercedObj[field.name] = fieldValue;
     }
     return coercedObj;
@@ -122,15 +129,18 @@ export function valueFromAST(valueNode, type, variables) {
     } catch (_error) {
       return; // Invalid: intentionally return no value.
     }
+
     if (result === undefined) {
       return; // Invalid: intentionally return no value.
     }
+
     return result;
   }
   /* c8 ignore next 3 */
   // Not reachable, all possible input types have been considered.
   false || invariant(false, 'Unexpected input type: ' + inspect(type));
 }
+
 // Returns true if the provided valueNode is a variable which is not defined
 // in the set of variables.
 function isMissingVariable(valueNode, variables) {

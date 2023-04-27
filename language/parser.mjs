@@ -5,6 +5,11 @@ import { Kind } from './kinds.mjs';
 import { isPunctuatorTokenKind, Lexer } from './lexer.mjs';
 import { isSource, Source } from './source.mjs';
 import { TokenKind } from './tokenKind.mjs';
+
+/**
+ * Configuration options to control parser behavior
+ */
+
 /**
  * Given a GraphQL source, parses it into a Document.
  * Throws GraphQLError if a syntax error is encountered.
@@ -13,6 +18,7 @@ export function parse(source, options) {
   const parser = new Parser(source, options);
   return parser.parseDocument();
 }
+
 /**
  * Given a string containing a GraphQL value (ex. `[42]`), parse the AST for
  * that value.
@@ -30,6 +36,7 @@ export function parseValue(source, options) {
   parser.expectToken(TokenKind.EOF);
   return value;
 }
+
 /**
  * Similar to parseValue(), but raises a parse error if it encounters a
  * variable. The return type will be a constant value.
@@ -41,6 +48,7 @@ export function parseConstValue(source, options) {
   parser.expectToken(TokenKind.EOF);
   return value;
 }
+
 /**
  * Given a string containing a GraphQL Type (ex. `[Int!]`), parse the AST for
  * that type.
@@ -58,6 +66,7 @@ export function parseType(source, options) {
   parser.expectToken(TokenKind.EOF);
   return type;
 }
+
 /**
  * This class is exported only to assist people in implementing their own parsers
  * without duplicating too much code and should be used only as last resort for cases
@@ -76,6 +85,7 @@ export class Parser {
     this._options = options;
     this._tokenCounter = 0;
   }
+
   /**
    * Converts a name lex token into a name parse node.
    */
@@ -86,7 +96,9 @@ export class Parser {
       value: token.value,
     });
   }
+
   // Implements the parsing rules in the Document section.
+
   /**
    * Document : Definition+
    */
@@ -100,6 +112,7 @@ export class Parser {
       ),
     });
   }
+
   /**
    * Definition :
    *   - ExecutableDefinition
@@ -127,6 +140,7 @@ export class Parser {
     if (this.peek(TokenKind.BRACE_L)) {
       return this.parseOperationDefinition();
     }
+
     // Many definitions begin with a description and require a lookahead.
     const hasDescription = this.peekDescription();
     const keywordToken = hasDescription
@@ -171,7 +185,9 @@ export class Parser {
     }
     throw this.unexpected(keywordToken);
   }
+
   // Implements the parsing rules in the Operations section.
+
   /**
    * OperationDefinition :
    *  - SelectionSet
@@ -203,6 +219,7 @@ export class Parser {
       selectionSet: this.parseSelectionSet(),
     });
   }
+
   /**
    * OperationType : one of query mutation subscription
    */
@@ -218,6 +235,7 @@ export class Parser {
     }
     throw this.unexpected(operationToken);
   }
+
   /**
    * VariableDefinitions : ( VariableDefinition+ )
    */
@@ -228,6 +246,7 @@ export class Parser {
       TokenKind.PAREN_R,
     );
   }
+
   /**
    * VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
    */
@@ -242,6 +261,7 @@ export class Parser {
       directives: this.parseConstDirectives(),
     });
   }
+
   /**
    * Variable : $ Name
    */
@@ -253,6 +273,7 @@ export class Parser {
       name: this.parseName(),
     });
   }
+
   /**
    * ```
    * SelectionSet : { Selection+ }
@@ -268,6 +289,7 @@ export class Parser {
       ),
     });
   }
+
   /**
    * Selection :
    *   - Field
@@ -279,6 +301,7 @@ export class Parser {
       ? this.parseFragment()
       : this.parseField();
   }
+
   /**
    * Field : Alias? Name Arguments? Directives? SelectionSet?
    *
@@ -300,49 +323,26 @@ export class Parser {
       alias,
       name,
       arguments: this.parseArguments(false),
-      // Experimental support for Client Controlled Nullability changes
-      // the grammar of Field:
-      nullabilityAssertion: this.parseNullabilityAssertion(),
       directives: this.parseDirectives(false),
       selectionSet: this.peek(TokenKind.BRACE_L)
         ? this.parseSelectionSet()
         : undefined,
     });
   }
-  // TODO: add grammar comment after it finalizes
-  parseNullabilityAssertion() {
-    // Note: Client Controlled Nullability is experimental and may be changed or
-    // removed in the future.
-    if (this._options.experimentalClientControlledNullability !== true) {
-      return undefined;
-    }
-    const start = this._lexer.token;
-    let nullabilityAssertion;
-    if (this.expectOptionalToken(TokenKind.BRACKET_L)) {
-      const innerModifier = this.parseNullabilityAssertion();
-      this.expectToken(TokenKind.BRACKET_R);
-      nullabilityAssertion = this.node(start, {
-        kind: Kind.LIST_NULLABILITY_OPERATOR,
-        nullabilityAssertion: innerModifier,
-      });
-    }
-    if (this.expectOptionalToken(TokenKind.BANG)) {
-      nullabilityAssertion = this.node(start, {
-        kind: Kind.NON_NULL_ASSERTION,
-        nullabilityAssertion,
-      });
-    } else if (this.expectOptionalToken(TokenKind.QUESTION_MARK)) {
-      nullabilityAssertion = this.node(start, {
-        kind: Kind.ERROR_BOUNDARY,
-        nullabilityAssertion,
-      });
-    }
-    return nullabilityAssertion;
-  }
+
+  /**
+   * Arguments[Const] : ( Argument[?Const]+ )
+   */
+
   parseArguments(isConst) {
     const item = isConst ? this.parseConstArgument : this.parseArgument;
     return this.optionalMany(TokenKind.PAREN_L, item, TokenKind.PAREN_R);
   }
+
+  /**
+   * Argument[Const] : Name : Value[?Const]
+   */
+
   parseArgument(isConst = false) {
     const start = this._lexer.token;
     const name = this.parseName();
@@ -356,7 +356,9 @@ export class Parser {
   parseConstArgument() {
     return this.parseArgument(true);
   }
+
   // Implements the parsing rules in the Fragments section.
+
   /**
    * Corresponds to both FragmentSpread and InlineFragment in the spec.
    *
@@ -382,6 +384,7 @@ export class Parser {
       selectionSet: this.parseSelectionSet(),
     });
   }
+
   /**
    * FragmentDefinition :
    *   - fragment FragmentName on TypeCondition Directives? SelectionSet
@@ -412,6 +415,7 @@ export class Parser {
       selectionSet: this.parseSelectionSet(),
     });
   }
+
   /**
    * FragmentName : Name but not `on`
    */
@@ -421,6 +425,28 @@ export class Parser {
     }
     return this.parseName();
   }
+
+  // Implements the parsing rules in the Values section.
+
+  /**
+   * Value[Const] :
+   *   - [~Const] Variable
+   *   - IntValue
+   *   - FloatValue
+   *   - StringValue
+   *   - BooleanValue
+   *   - NullValue
+   *   - EnumValue
+   *   - ListValue[?Const]
+   *   - ObjectValue[?Const]
+   *
+   * BooleanValue : one of `true` `false`
+   *
+   * NullValue : `null`
+   *
+   * EnumValue : Name but not `true`, `false` or `null`
+   */
+
   parseValueLiteral(isConst) {
     const token = this._lexer.token;
     switch (token.kind) {
@@ -457,7 +483,9 @@ export class Parser {
               value: false,
             });
           case 'null':
-            return this.node(token, { kind: Kind.NULL });
+            return this.node(token, {
+              kind: Kind.NULL,
+            });
           default:
             return this.node(token, {
               kind: Kind.ENUM,
@@ -495,6 +523,13 @@ export class Parser {
       block: token.kind === TokenKind.BLOCK_STRING,
     });
   }
+
+  /**
+   * ListValue[Const] :
+   *   - [ ]
+   *   - [ Value[?Const]+ ]
+   */
+
   parseList(isConst) {
     const item = () => this.parseValueLiteral(isConst);
     return this.node(this._lexer.token, {
@@ -502,6 +537,15 @@ export class Parser {
       values: this.any(TokenKind.BRACKET_L, item, TokenKind.BRACKET_R),
     });
   }
+
+  /**
+   * ```
+   * ObjectValue[Const] :
+   *   - { }
+   *   - { ObjectField[?Const]+ }
+   * ```
+   */
+
   parseObject(isConst) {
     const item = () => this.parseObjectField(isConst);
     return this.node(this._lexer.token, {
@@ -509,6 +553,11 @@ export class Parser {
       fields: this.any(TokenKind.BRACE_L, item, TokenKind.BRACE_R),
     });
   }
+
+  /**
+   * ObjectField[Const] : Name : Value[?Const]
+   */
+
   parseObjectField(isConst) {
     const start = this._lexer.token;
     const name = this.parseName();
@@ -519,6 +568,13 @@ export class Parser {
       value: this.parseValueLiteral(isConst),
     });
   }
+
+  // Implements the parsing rules in the Directives section.
+
+  /**
+   * Directives[Const] : Directive[?Const]+
+   */
+
   parseDirectives(isConst) {
     const directives = [];
     while (this.peek(TokenKind.AT)) {
@@ -529,6 +585,13 @@ export class Parser {
   parseConstDirectives() {
     return this.parseDirectives(true);
   }
+
+  /**
+   * ```
+   * Directive[Const] : @ Name Arguments[?Const]?
+   * ```
+   */
+
   parseDirective(isConst) {
     const start = this._lexer.token;
     this.expectToken(TokenKind.AT);
@@ -538,7 +601,9 @@ export class Parser {
       arguments: this.parseArguments(isConst),
     });
   }
+
   // Implements the parsing rules in the Types section.
+
   /**
    * Type :
    *   - NamedType
@@ -566,6 +631,7 @@ export class Parser {
     }
     return type;
   }
+
   /**
    * NamedType : Name
    */
@@ -575,10 +641,13 @@ export class Parser {
       name: this.parseName(),
     });
   }
+
   // Implements the parsing rules in the Type Definition section.
+
   peekDescription() {
     return this.peek(TokenKind.STRING) || this.peek(TokenKind.BLOCK_STRING);
   }
+
   /**
    * Description : StringValue
    */
@@ -587,6 +656,7 @@ export class Parser {
       return this.parseStringLiteral();
     }
   }
+
   /**
    * ```
    * SchemaDefinition : Description? schema Directives[Const]? { OperationTypeDefinition+ }
@@ -609,6 +679,7 @@ export class Parser {
       operationTypes,
     });
   }
+
   /**
    * OperationTypeDefinition : OperationType : NamedType
    */
@@ -623,6 +694,7 @@ export class Parser {
       type,
     });
   }
+
   /**
    * ScalarTypeDefinition : Description? scalar Name Directives[Const]?
    */
@@ -639,6 +711,7 @@ export class Parser {
       directives,
     });
   }
+
   /**
    * ObjectTypeDefinition :
    *   Description?
@@ -661,6 +734,7 @@ export class Parser {
       fields,
     });
   }
+
   /**
    * ImplementsInterfaces :
    *   - implements `&`? NamedType
@@ -671,6 +745,7 @@ export class Parser {
       ? this.delimitedMany(TokenKind.AMP, this.parseNamedType)
       : [];
   }
+
   /**
    * ```
    * FieldsDefinition : { FieldDefinition+ }
@@ -683,6 +758,7 @@ export class Parser {
       TokenKind.BRACE_R,
     );
   }
+
   /**
    * FieldDefinition :
    *   - Description? Name ArgumentsDefinition? : Type Directives[Const]?
@@ -704,6 +780,7 @@ export class Parser {
       directives,
     });
   }
+
   /**
    * ArgumentsDefinition : ( InputValueDefinition+ )
    */
@@ -714,6 +791,7 @@ export class Parser {
       TokenKind.PAREN_R,
     );
   }
+
   /**
    * InputValueDefinition :
    *   - Description? Name : Type DefaultValue? Directives[Const]?
@@ -738,6 +816,7 @@ export class Parser {
       directives,
     });
   }
+
   /**
    * InterfaceTypeDefinition :
    *   - Description? interface Name Directives[Const]? FieldsDefinition?
@@ -759,6 +838,7 @@ export class Parser {
       fields,
     });
   }
+
   /**
    * UnionTypeDefinition :
    *   - Description? union Name Directives[Const]? UnionMemberTypes?
@@ -778,6 +858,7 @@ export class Parser {
       types,
     });
   }
+
   /**
    * UnionMemberTypes :
    *   - = `|`? NamedType
@@ -788,6 +869,7 @@ export class Parser {
       ? this.delimitedMany(TokenKind.PIPE, this.parseNamedType)
       : [];
   }
+
   /**
    * EnumTypeDefinition :
    *   - Description? enum Name Directives[Const]? EnumValuesDefinition?
@@ -807,6 +889,7 @@ export class Parser {
       values,
     });
   }
+
   /**
    * ```
    * EnumValuesDefinition : { EnumValueDefinition+ }
@@ -819,6 +902,7 @@ export class Parser {
       TokenKind.BRACE_R,
     );
   }
+
   /**
    * EnumValueDefinition : Description? EnumValue Directives[Const]?
    */
@@ -834,6 +918,7 @@ export class Parser {
       directives,
     });
   }
+
   /**
    * EnumValue : Name but not `true`, `false` or `null`
    */
@@ -853,6 +938,7 @@ export class Parser {
     }
     return this.parseName();
   }
+
   /**
    * InputObjectTypeDefinition :
    *   - Description? input Name Directives[Const]? InputFieldsDefinition?
@@ -872,6 +958,7 @@ export class Parser {
       fields,
     });
   }
+
   /**
    * ```
    * InputFieldsDefinition : { InputValueDefinition+ }
@@ -884,6 +971,7 @@ export class Parser {
       TokenKind.BRACE_R,
     );
   }
+
   /**
    * TypeSystemExtension :
    *   - SchemaExtension
@@ -919,6 +1007,7 @@ export class Parser {
     }
     throw this.unexpected(keywordToken);
   }
+
   /**
    * ```
    * SchemaExtension :
@@ -945,6 +1034,7 @@ export class Parser {
       operationTypes,
     });
   }
+
   /**
    * ScalarTypeExtension :
    *   - extend scalar Name Directives[Const]
@@ -964,6 +1054,7 @@ export class Parser {
       directives,
     });
   }
+
   /**
    * ObjectTypeExtension :
    *  - extend type Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
@@ -993,6 +1084,7 @@ export class Parser {
       fields,
     });
   }
+
   /**
    * InterfaceTypeExtension :
    *  - extend interface Name ImplementsInterfaces? Directives[Const]? FieldsDefinition
@@ -1022,6 +1114,7 @@ export class Parser {
       fields,
     });
   }
+
   /**
    * UnionTypeExtension :
    *   - extend union Name Directives[Const]? UnionMemberTypes
@@ -1044,6 +1137,7 @@ export class Parser {
       types,
     });
   }
+
   /**
    * EnumTypeExtension :
    *   - extend enum Name Directives[Const]? EnumValuesDefinition
@@ -1066,6 +1160,7 @@ export class Parser {
       values,
     });
   }
+
   /**
    * InputObjectTypeExtension :
    *   - extend input Name Directives[Const]? InputFieldsDefinition
@@ -1088,6 +1183,7 @@ export class Parser {
       fields,
     });
   }
+
   /**
    * ```
    * DirectiveDefinition :
@@ -1113,6 +1209,7 @@ export class Parser {
       locations,
     });
   }
+
   /**
    * DirectiveLocations :
    *   - `|`? DirectiveLocation
@@ -1121,6 +1218,7 @@ export class Parser {
   parseDirectiveLocations() {
     return this.delimitedMany(TokenKind.PIPE, this.parseDirectiveLocation);
   }
+
   /*
    * DirectiveLocation :
    *   - ExecutableDirectiveLocation
@@ -1151,12 +1249,14 @@ export class Parser {
   parseDirectiveLocation() {
     const start = this._lexer.token;
     const name = this.parseName();
-    if (Object.hasOwn(DirectiveLocation, name.value)) {
+    if (Object.prototype.hasOwnProperty.call(DirectiveLocation, name.value)) {
       return name;
     }
     throw this.unexpected(start);
   }
+
   // Core parsing utility functions
+
   /**
    * Returns a node that, if configured to do so, sets a "loc" field as a
    * location object, used to identify the place in the source that created a
@@ -1172,12 +1272,14 @@ export class Parser {
     }
     return node;
   }
+
   /**
    * Determines if the next token is of a given kind
    */
   peek(kind) {
     return this._lexer.token.kind === kind;
   }
+
   /**
    * If the next token is of the given kind, return that token after advancing the lexer.
    * Otherwise, do not change the parser state and throw an error.
@@ -1194,6 +1296,7 @@ export class Parser {
       `Expected ${getTokenKindDesc(kind)}, found ${getTokenDesc(token)}.`,
     );
   }
+
   /**
    * If the next token is of the given kind, return "true" after advancing the lexer.
    * Otherwise, do not change the parser state and return "false".
@@ -1206,6 +1309,7 @@ export class Parser {
     }
     return false;
   }
+
   /**
    * If the next token is a given keyword, advance the lexer.
    * Otherwise, do not change the parser state and throw an error.
@@ -1222,6 +1326,7 @@ export class Parser {
       );
     }
   }
+
   /**
    * If the next token is a given keyword, return "true" after advancing the lexer.
    * Otherwise, do not change the parser state and return "false".
@@ -1234,17 +1339,20 @@ export class Parser {
     }
     return false;
   }
+
   /**
    * Helper function for creating an error when an unexpected lexed token is encountered.
    */
   unexpected(atToken) {
-    const token = atToken ?? this._lexer.token;
+    const token =
+      atToken !== null && atToken !== void 0 ? atToken : this._lexer.token;
     return syntaxError(
       this._lexer.source,
       token.start,
       `Unexpected ${getTokenDesc(token)}.`,
     );
   }
+
   /**
    * Returns a possibly empty list of parse nodes, determined by the parseFn.
    * This list begins with a lex token of openKind and ends with a lex token of closeKind.
@@ -1258,6 +1366,7 @@ export class Parser {
     }
     return nodes;
   }
+
   /**
    * Returns a list of parse nodes, determined by the parseFn.
    * It can be empty only if open token is missing otherwise it will always return non-empty list
@@ -1274,6 +1383,7 @@ export class Parser {
     }
     return [];
   }
+
   /**
    * Returns a non-empty list of parse nodes, determined by the parseFn.
    * This list begins with a lex token of openKind and ends with a lex token of closeKind.
@@ -1287,6 +1397,7 @@ export class Parser {
     } while (!this.expectOptionalToken(closeKind));
     return nodes;
   }
+
   /**
    * Returns a non-empty list of parse nodes, determined by the parseFn.
    * This list may begin with a lex token of delimiterKind followed by items separated by lex tokens of tokenKind.
@@ -1309,12 +1420,13 @@ export class Parser {
         throw syntaxError(
           this._lexer.source,
           token.start,
-          `Document contains more than ${maxTokens} tokens. Parsing aborted.`,
+          `Document contains more that ${maxTokens} tokens. Parsing aborted.`,
         );
       }
     }
   }
 }
+
 /**
  * A helper function to describe a token as a string for debugging.
  */
@@ -1322,6 +1434,7 @@ function getTokenDesc(token) {
   const value = token.value;
   return getTokenKindDesc(token.kind) + (value != null ? ` "${value}"` : '');
 }
+
 /**
  * A helper function to describe a token kind as a string for debugging.
  */

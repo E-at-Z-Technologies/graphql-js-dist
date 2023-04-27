@@ -28,45 +28,46 @@ export function KnownArgumentNamesRule(context) {
           new GraphQLError(
             `Unknown argument "${argName}" on field "${parentType.name}.${fieldDef.name}".` +
               didYouMean(suggestions),
-            { nodes: argNode },
+            {
+              nodes: argNode,
+            },
           ),
         );
       }
     },
   };
 }
+
 /**
  * @internal
  */
 export function KnownArgumentNamesOnDirectivesRule(context) {
-  const directiveArgs = new Map();
+  const directiveArgs = Object.create(null);
   const schema = context.getSchema();
   const definedDirectives = schema
     ? schema.getDirectives()
     : specifiedDirectives;
   for (const directive of definedDirectives) {
-    directiveArgs.set(
-      directive.name,
-      directive.args.map((arg) => arg.name),
-    );
+    directiveArgs[directive.name] = directive.args.map((arg) => arg.name);
   }
   const astDefinitions = context.getDocument().definitions;
   for (const def of astDefinitions) {
     if (def.kind === Kind.DIRECTIVE_DEFINITION) {
+      var _def$arguments;
       // FIXME: https://github.com/graphql/graphql-js/issues/2203
       /* c8 ignore next */
-      const argsNodes = def.arguments ?? [];
-      directiveArgs.set(
-        def.name.value,
-        argsNodes.map((arg) => arg.name.value),
-      );
+      const argsNodes =
+        (_def$arguments = def.arguments) !== null && _def$arguments !== void 0
+          ? _def$arguments
+          : [];
+      directiveArgs[def.name.value] = argsNodes.map((arg) => arg.name.value);
     }
   }
   return {
     Directive(directiveNode) {
       const directiveName = directiveNode.name.value;
-      const knownArgs = directiveArgs.get(directiveName);
-      if (directiveNode.arguments != null && knownArgs != null) {
+      const knownArgs = directiveArgs[directiveName];
+      if (directiveNode.arguments && knownArgs) {
         for (const argNode of directiveNode.arguments) {
           const argName = argNode.name.value;
           if (!knownArgs.includes(argName)) {
@@ -75,7 +76,9 @@ export function KnownArgumentNamesOnDirectivesRule(context) {
               new GraphQLError(
                 `Unknown argument "${argName}" on directive "@${directiveName}".` +
                   didYouMean(suggestions),
-                { nodes: argNode },
+                {
+                  nodes: argNode,
+                },
               ),
             );
           }

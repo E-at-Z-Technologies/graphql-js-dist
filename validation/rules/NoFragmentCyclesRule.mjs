@@ -10,9 +10,11 @@ import { GraphQLError } from '../../error/GraphQLError.mjs';
 export function NoFragmentCyclesRule(context) {
   // Tracks already visited fragments to maintain O(N) and to ensure that cycles
   // are not redundantly reported.
-  const visitedFrags = new Set();
+  const visitedFrags = Object.create(null);
+
   // Array of AST nodes used to produce meaningful errors
   const spreadPath = [];
+
   // Position in the spread path
   const spreadPathIndexByName = Object.create(null);
   return {
@@ -22,15 +24,16 @@ export function NoFragmentCyclesRule(context) {
       return false;
     },
   };
+
   // This does a straight-forward DFS to find cycles.
   // It does not terminate when a cycle was found but continues to explore
   // the graph to find all possible cycles.
   function detectCycleRecursive(fragment) {
-    if (visitedFrags.has(fragment.name.value)) {
+    if (visitedFrags[fragment.name.value]) {
       return;
     }
     const fragmentName = fragment.name.value;
-    visitedFrags.add(fragmentName);
+    visitedFrags[fragmentName] = true;
     const spreadNodes = context.getFragmentSpreads(fragment.selectionSet);
     if (spreadNodes.length === 0) {
       return;
@@ -55,7 +58,9 @@ export function NoFragmentCyclesRule(context) {
           new GraphQLError(
             `Cannot spread fragment "${spreadName}" within itself` +
               (viaPath !== '' ? ` via ${viaPath}.` : '.'),
-            { nodes: cyclePath },
+            {
+              nodes: cyclePath,
+            },
           ),
         );
       }

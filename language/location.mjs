@@ -1,5 +1,10 @@
 import { invariant } from '../jsutils/invariant.mjs';
 const LineRegExp = /\r\n|[\n\r]/g;
+
+/**
+ * Represents a location in a Source.
+ */
+
 /**
  * Takes a Source and a UTF-8 character offset, and returns the corresponding
  * line and column as a SourceLocation.
@@ -15,5 +20,8 @@ export function getLocation(source, position) {
     lastLineStart = match.index + match[0].length;
     line += 1;
   }
-  return { line, column: position + 1 - lastLineStart };
+  return {
+    line,
+    column: position + 1 - lastLineStart,
+  };
 }

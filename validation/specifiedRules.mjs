@@ -1,9 +1,3 @@
-// Spec Section: "Defer And Stream Directive Labels Are Unique"
-import { DeferStreamDirectiveLabelRule } from './rules/DeferStreamDirectiveLabelRule.mjs';
-// Spec Section: "Defer And Stream Directives Are Used On Valid Root Field"
-import { DeferStreamDirectiveOnRootFieldRule } from './rules/DeferStreamDirectiveOnRootFieldRule.mjs';
-// Spec Section: "Defer And Stream Directives Are Used On Valid Operations"
-import { DeferStreamDirectiveOnValidOperationsRule } from './rules/DeferStreamDirectiveOnValidOperationsRule.mjs';
 // Spec Section: "Executable Definitions"
 import { ExecutableDefinitionsRule } from './rules/ExecutableDefinitionsRule.mjs';
 // Spec Section: "Field Selections on Objects, Interfaces, and Unions Types"
@@ -47,8 +41,6 @@ import {
 import { ScalarLeafsRule } from './rules/ScalarLeafsRule.mjs';
 // Spec Section: "Subscriptions with Single Root Field"
 import { SingleFieldSubscriptionsRule } from './rules/SingleFieldSubscriptionsRule.mjs';
-// Spec Section: "Stream Directives Are Used On List Fields"
-import { StreamDirectiveOnListFieldRule } from './rules/StreamDirectiveOnListFieldRule.mjs';
 import { UniqueArgumentDefinitionNamesRule } from './rules/UniqueArgumentDefinitionNamesRule.mjs';
 // Spec Section: "Argument Uniqueness"
 import { UniqueArgumentNamesRule } from './rules/UniqueArgumentNamesRule.mjs';
@@ -99,10 +91,6 @@ export const specifiedRules = Object.freeze([
   NoUnusedVariablesRule,
   KnownDirectivesRule,
   UniqueDirectivesPerLocationRule,
-  DeferStreamDirectiveOnRootFieldRule,
-  DeferStreamDirectiveOnValidOperationsRule,
-  DeferStreamDirectiveLabelRule,
-  StreamDirectiveOnListFieldRule,
   KnownArgumentNamesRule,
   UniqueArgumentNamesRule,
   ValuesOfCorrectTypeRule,
@@ -111,6 +99,7 @@ export const specifiedRules = Object.freeze([
   OverlappingFieldsCanBeMergedRule,
   UniqueInputFieldNamesRule,
 ]);
+
 /**
  * @internal
  */

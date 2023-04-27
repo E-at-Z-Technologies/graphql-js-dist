@@ -9,9 +9,14 @@ import { GraphQLError } from '../../error/GraphQLError.mjs';
 export function UniqueArgumentDefinitionNamesRule(context) {
   return {
     DirectiveDefinition(directiveNode) {
+      var _directiveNode$argume;
       // FIXME: https://github.com/graphql/graphql-js/issues/2203
       /* c8 ignore next */
-      const argumentNodes = directiveNode.arguments ?? [];
+      const argumentNodes =
+        (_directiveNode$argume = directiveNode.arguments) !== null &&
+        _directiveNode$argume !== void 0
+          ? _directiveNode$argume
+          : [];
       return checkArgUniqueness(`@${directiveNode.name.value}`, argumentNodes);
     },
     InterfaceTypeDefinition: checkArgUniquenessPerField,
@@ -20,15 +25,27 @@ export function UniqueArgumentDefinitionNamesRule(context) {
     ObjectTypeExtension: checkArgUniquenessPerField,
   };
   function checkArgUniquenessPerField(typeNode) {
+    var _typeNode$fields;
     const typeName = typeNode.name.value;
+
     // FIXME: https://github.com/graphql/graphql-js/issues/2203
     /* c8 ignore next */
-    const fieldNodes = typeNode.fields ?? [];
+    const fieldNodes =
+      (_typeNode$fields = typeNode.fields) !== null &&
+      _typeNode$fields !== void 0
+        ? _typeNode$fields
+        : [];
     for (const fieldDef of fieldNodes) {
+      var _fieldDef$arguments;
       const fieldName = fieldDef.name.value;
+
       // FIXME: https://github.com/graphql/graphql-js/issues/2203
       /* c8 ignore next */
-      const argumentNodes = fieldDef.arguments ?? [];
+      const argumentNodes =
+        (_fieldDef$arguments = fieldDef.arguments) !== null &&
+        _fieldDef$arguments !== void 0
+          ? _fieldDef$arguments
+          : [];
       checkArgUniqueness(`${typeName}.${fieldName}`, argumentNodes);
     }
     return false;
@@ -40,7 +57,9 @@ export function UniqueArgumentDefinitionNamesRule(context) {
         context.reportError(
           new GraphQLError(
             `Argument "${parentName}(${argName}:)" can only be defined once.`,
-            { nodes: argNodes.map((node) => node.name) },
+            {
+              nodes: argNodes.map((node) => node.name),
+            },
           ),
         );
       }

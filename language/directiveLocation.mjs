@@ -1,9 +1,8 @@
 /**
  * The set of allowed directive location values.
  */
-export var DirectiveLocation;
+var DirectiveLocation;
 (function (DirectiveLocation) {
-  /** Request Definitions */
   DirectiveLocation['QUERY'] = 'QUERY';
   DirectiveLocation['MUTATION'] = 'MUTATION';
   DirectiveLocation['SUBSCRIPTION'] = 'SUBSCRIPTION';
@@ -12,7 +11,6 @@ export var DirectiveLocation;
   DirectiveLocation['FRAGMENT_SPREAD'] = 'FRAGMENT_SPREAD';
   DirectiveLocation['INLINE_FRAGMENT'] = 'INLINE_FRAGMENT';
   DirectiveLocation['VARIABLE_DEFINITION'] = 'VARIABLE_DEFINITION';
-  /** Type System Definitions */
   DirectiveLocation['SCHEMA'] = 'SCHEMA';
   DirectiveLocation['SCALAR'] = 'SCALAR';
   DirectiveLocation['OBJECT'] = 'OBJECT';
@@ -25,3 +23,10 @@ export var DirectiveLocation;
   DirectiveLocation['INPUT_OBJECT'] = 'INPUT_OBJECT';
   DirectiveLocation['INPUT_FIELD_DEFINITION'] = 'INPUT_FIELD_DEFINITION';
 })(DirectiveLocation || (DirectiveLocation = {}));
+export { DirectiveLocation };
+
+/**
+ * The enum type representing the directive location values.
+ *
+ * @deprecated Please use `DirectiveLocation`. Will be remove in v17.
+ */

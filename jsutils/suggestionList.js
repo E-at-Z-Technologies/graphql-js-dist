@@ -1,7 +1,10 @@
 'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.suggestionList = void 0;
-const naturalCompare_js_1 = require('./naturalCompare.js');
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.suggestionList = suggestionList;
+var _naturalCompare = require('./naturalCompare.js');
 /**
  * Given an invalid input string and a list of valid options, returns a filtered
  * list of valid options sorted based on their similarity with the input.
@@ -20,10 +23,10 @@ function suggestionList(input, options) {
     const distanceDiff = optionsByDistance[a] - optionsByDistance[b];
     return distanceDiff !== 0
       ? distanceDiff
-      : (0, naturalCompare_js_1.naturalCompare)(a, b);
+      : (0, _naturalCompare.naturalCompare)(a, b);
   });
 }
-exports.suggestionList = suggestionList;
+
 /**
  * Computes the lexical distance between strings A and B.
  *
@@ -54,6 +57,7 @@ class LexicalDistance {
       return 0;
     }
     const optionLowerCase = option.toLowerCase();
+
     // Any case change counts as a single edit
     if (this._inputLowerCase === optionLowerCase) {
       return 1;
@@ -81,10 +85,13 @@ class LexicalDistance {
       for (let j = 1; j <= bLength; j++) {
         const cost = a[i - 1] === b[j - 1] ? 0 : 1;
         let currentCell = Math.min(
-          upRow[j] + 1, // delete
-          currentRow[j - 1] + 1, // insert
-          upRow[j - 1] + cost,
+          upRow[j] + 1,
+          // delete
+          currentRow[j - 1] + 1,
+          // insert
+          upRow[j - 1] + cost, // substitute
         );
+
         if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
           // transposition
           const doubleDiagonalCell = rows[(i - 2) % 3][j - 2];
@@ -95,6 +102,7 @@ class LexicalDistance {
         }
         currentRow[j] = currentCell;
       }
+
       // Early exit, since distance can't go smaller than smallest element of the previous row.
       if (smallestCell > threshold) {
         return undefined;

@@ -1,16 +1,16 @@
-import type { DocumentNode } from '../language/ast.js';
+import type { DocumentNode } from '../language/ast';
 import type {
   GraphQLSchemaNormalizedConfig,
   GraphQLSchemaValidationOptions,
-} from '../type/schema.js';
-import { GraphQLSchema } from '../type/schema.js';
+} from '../type/schema';
+import { GraphQLSchema } from '../type/schema';
 interface Options extends GraphQLSchemaValidationOptions {
   /**
    * Set to true to assume the SDL is valid.
    *
    * Default: false
    */
-  assumeValidSDL?: boolean | undefined;
+  assumeValidSDL?: boolean;
 }
 /**
  * Produces a new schema given an existing schema and a document which may

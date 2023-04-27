@@ -8,15 +8,11 @@ import { GraphQLError } from '../../error/GraphQLError.mjs';
  * See https://spec.graphql.org/draft/#sec-Fragments-Must-Be-Used
  */
 export function NoUnusedFragmentsRule(context) {
-  const fragmentNameUsed = new Set();
+  const operationDefs = [];
   const fragmentDefs = [];
   return {
-    OperationDefinition(operation) {
-      for (const fragment of context.getRecursivelyReferencedFragments(
-        operation,
-      )) {
-        fragmentNameUsed.add(fragment.name.value);
-      }
+    OperationDefinition(node) {
+      operationDefs.push(node);
       return false;
     },
     FragmentDefinition(node) {
@@ -25,9 +21,17 @@ export function NoUnusedFragmentsRule(context) {
     },
     Document: {
       leave() {
+        const fragmentNameUsed = Object.create(null);
+        for (const operation of operationDefs) {
+          for (const fragment of context.getRecursivelyReferencedFragments(
+            operation,
+          )) {
+            fragmentNameUsed[fragment.name.value] = true;
+          }
+        }
         for (const fragmentDef of fragmentDefs) {
           const fragName = fragmentDef.name.value;
-          if (!fragmentNameUsed.has(fragName)) {
+          if (fragmentNameUsed[fragName] !== true) {
             context.reportError(
               new GraphQLError(`Fragment "${fragName}" is never used.`, {
                 nodes: fragmentDef,

@@ -1,5 +1,5 @@
-import type { ASTNode } from './ast.js';
-import { Kind } from './kinds.js';
+import type { ASTNode } from './ast';
+import { Kind } from './kinds';
 /**
  * A visitor is provided to visit, it contains the collection of
  * relevant functions to be called during the visitor's traversal.
@@ -11,8 +11,8 @@ type KindVisitor = {
     | EnterLeaveVisitor<NodeT>;
 };
 interface EnterLeaveVisitor<TVisitedNode extends ASTNode> {
-  readonly enter?: ASTVisitFn<TVisitedNode> | undefined;
-  readonly leave?: ASTVisitFn<TVisitedNode> | undefined;
+  readonly enter?: ASTVisitFn<TVisitedNode>;
+  readonly leave?: ASTVisitFn<TVisitedNode>;
 }
 /**
  * A visitor is comprised of visit functions, which are called on each node
@@ -62,13 +62,15 @@ type ASTReducerFn<TReducedNode extends ASTNode, R> = (
    */
   ancestors: ReadonlyArray<ASTNode | ReadonlyArray<ASTNode>>,
 ) => R;
-type ReducedField<T, R> = T extends ASTNode
-  ? R
-  : T extends ReadonlyArray<ASTNode>
+type ReducedField<T, R> = T extends null | undefined
+  ? T
+  : T extends ReadonlyArray<any>
   ? ReadonlyArray<R>
-  : T;
+  : R;
 /**
  * A KeyMap describes each the traversable properties of each kind of node.
+ *
+ * @deprecated Please inline it. Will be removed in v17
  */
 export type ASTVisitorKeyMap = {
   [NodeT in ASTNode as NodeT['kind']]?: ReadonlyArray<keyof NodeT>;
@@ -178,4 +180,15 @@ export declare function getEnterLeaveForKind(
   visitor: ASTVisitor,
   kind: Kind,
 ): EnterLeaveVisitor<ASTNode>;
+/**
+ * Given a visitor instance, if it is leaving or not, and a node kind, return
+ * the function the visitor runtime should call.
+ *
+ * @deprecated Please use `getEnterLeaveForKind` instead. Will be removed in v17
+ */
+export declare function getVisitFn(
+  visitor: ASTVisitor,
+  kind: Kind,
+  isLeaving: boolean,
+): ASTVisitFn<ASTNode> | undefined;
 export {};

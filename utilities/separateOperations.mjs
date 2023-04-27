@@ -1,5 +1,6 @@
 import { Kind } from '../language/kinds.mjs';
 import { visit } from '../language/visitor.mjs';
+
 /**
  * separateOperations accepts a single AST document which may contain many
  * operations and fragments and returns a collection of AST documents each of
@@ -9,6 +10,7 @@ import { visit } from '../language/visitor.mjs';
 export function separateOperations(documentAST) {
   const operations = [];
   const depGraph = Object.create(null);
+
   // Populate metadata and build a dependency graph.
   for (const definitionNode of documentAST.definitions) {
     switch (definitionNode.kind) {
@@ -24,6 +26,7 @@ export function separateOperations(documentAST) {
       // ignore non-executable definitions
     }
   }
+
   // For each operation, produce a new synthesized AST which includes only what
   // is necessary for completing that operation.
   const separatedDocumentASTs = Object.create(null);
@@ -32,8 +35,10 @@ export function separateOperations(documentAST) {
     for (const fragmentName of collectDependencies(operation.selectionSet)) {
       collectTransitiveDependencies(dependencies, depGraph, fragmentName);
     }
+
     // Provides the empty string for anonymous operations.
     const operationName = operation.name ? operation.name.value : '';
+
     // The list of definition nodes to be included for this operation, sorted
     // to retain the same order as the original document.
     separatedDocumentASTs[operationName] = {

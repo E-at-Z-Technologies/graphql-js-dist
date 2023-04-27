@@ -43,27 +43,25 @@ function printFilteredSchema(schema, directiveFilter, typeFilter) {
     .join('\n\n');
 }
 function printSchemaDefinition(schema) {
-  const queryType = schema.getQueryType();
-  const mutationType = schema.getMutationType();
-  const subscriptionType = schema.getSubscriptionType();
-  // Special case: When a schema has no root operation types, no valid schema
-  // definition can be printed.
-  if (!queryType && !mutationType && !subscriptionType) {
+  if (schema.description == null && isSchemaOfCommonNames(schema)) {
     return;
   }
-  // Only print a schema definition if there is a description or if it should
-  // not be omitted because of having default type names.
-  if (schema.description != null || !hasDefaultRootOperationTypes(schema)) {
-    return (
-      printDescription(schema) +
-      'schema {\n' +
-      (queryType ? `  query: ${queryType.name}\n` : '') +
-      (mutationType ? `  mutation: ${mutationType.name}\n` : '') +
-      (subscriptionType ? `  subscription: ${subscriptionType.name}\n` : '') +
-      '}'
-    );
+  const operationTypes = [];
+  const queryType = schema.getQueryType();
+  if (queryType) {
+    operationTypes.push(`  query: ${queryType.name}`);
   }
+  const mutationType = schema.getMutationType();
+  if (mutationType) {
+    operationTypes.push(`  mutation: ${mutationType.name}`);
+  }
+  const subscriptionType = schema.getSubscriptionType();
+  if (subscriptionType) {
+    operationTypes.push(`  subscription: ${subscriptionType.name}`);
+  }
+  return printDescription(schema) + `schema {\n${operationTypes.join('\n')}\n}`;
 }
+
 /**
  * GraphQL schema define root types for each type of operation. These types are
  * the same as any other type and can be named in any manner, however there is
@@ -77,20 +75,22 @@ function printSchemaDefinition(schema) {
  *   }
  * ```
  *
- * When using this naming convention, the schema description can be omitted so
- * long as these names are only used for operation types.
- *
- * Note however that if any of these default names are used elsewhere in the
- * schema but not as a root operation type, the schema definition must still
- * be printed to avoid ambiguity.
+ * When using this naming convention, the schema description can be omitted.
  */
-function hasDefaultRootOperationTypes(schema) {
-  /* eslint-disable eqeqeq */
-  return (
-    schema.getQueryType() == schema.getType('Query') &&
-    schema.getMutationType() == schema.getType('Mutation') &&
-    schema.getSubscriptionType() == schema.getType('Subscription')
-  );
+function isSchemaOfCommonNames(schema) {
+  const queryType = schema.getQueryType();
+  if (queryType && queryType.name !== 'Query') {
+    return false;
+  }
+  const mutationType = schema.getMutationType();
+  if (mutationType && mutationType.name !== 'Mutation') {
+    return false;
+  }
+  const subscriptionType = schema.getSubscriptionType();
+  if (subscriptionType && subscriptionType.name !== 'Subscription') {
+    return false;
+  }
+  return true;
 }
 export function printType(type) {
   if (isScalarType(type)) {
@@ -185,8 +185,9 @@ function printArgs(args, indentation = '') {
   if (args.length === 0) {
     return '';
   }
+
   // If every arg does not have a description, print them on one line.
-  if (args.every((arg) => arg.description == null)) {
+  if (args.every((arg) => !arg.description)) {
     return '(' + args.map(printInputValue).join(', ') + ')';
   }
   return (
@@ -213,7 +214,7 @@ function printInputValue(arg) {
   }
   return argDecl + printDeprecated(arg.deprecationReason);
 }
-export function printDirective(directive) {
+function printDirective(directive) {
   return (
     printDescription(directive) +
     'directive @' +
@@ -229,7 +230,10 @@ function printDeprecated(reason) {
     return '';
   }
   if (reason !== DEFAULT_DEPRECATION_REASON) {
-    const astValue = print({ kind: Kind.STRING, value: reason });
+    const astValue = print({
+      kind: Kind.STRING,
+      value: reason,
+    });
     return ` @deprecated(reason: ${astValue})`;
   }
   return ' @deprecated';
@@ -256,5 +260,5 @@ function printDescription(def, indentation = '', firstInBlock = true) {
   });
   const prefix =
     indentation && !firstInBlock ? '\n' + indentation : indentation;
-  return prefix + blockString.replaceAll('\n', '\n' + indentation) + '\n';
+  return prefix + blockString.replace(/\n/g, '\n' + indentation) + '\n';
 }

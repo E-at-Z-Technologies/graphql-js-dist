@@ -1,8 +1,11 @@
 'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.UniqueArgumentDefinitionNamesRule = void 0;
-const groupBy_js_1 = require('../../jsutils/groupBy.js');
-const GraphQLError_js_1 = require('../../error/GraphQLError.js');
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.UniqueArgumentDefinitionNamesRule = UniqueArgumentDefinitionNamesRule;
+var _groupBy = require('../../jsutils/groupBy.js');
+var _GraphQLError = require('../../error/GraphQLError.js');
 /**
  * Unique argument definition names
  *
@@ -12,9 +15,14 @@ const GraphQLError_js_1 = require('../../error/GraphQLError.js');
 function UniqueArgumentDefinitionNamesRule(context) {
   return {
     DirectiveDefinition(directiveNode) {
+      var _directiveNode$argume;
       // FIXME: https://github.com/graphql/graphql-js/issues/2203
       /* c8 ignore next */
-      const argumentNodes = directiveNode.arguments ?? [];
+      const argumentNodes =
+        (_directiveNode$argume = directiveNode.arguments) !== null &&
+        _directiveNode$argume !== void 0
+          ? _directiveNode$argume
+          : [];
       return checkArgUniqueness(`@${directiveNode.name.value}`, argumentNodes);
     },
     InterfaceTypeDefinition: checkArgUniquenessPerField,
@@ -23,30 +31,44 @@ function UniqueArgumentDefinitionNamesRule(context) {
     ObjectTypeExtension: checkArgUniquenessPerField,
   };
   function checkArgUniquenessPerField(typeNode) {
+    var _typeNode$fields;
     const typeName = typeNode.name.value;
+
     // FIXME: https://github.com/graphql/graphql-js/issues/2203
     /* c8 ignore next */
-    const fieldNodes = typeNode.fields ?? [];
+    const fieldNodes =
+      (_typeNode$fields = typeNode.fields) !== null &&
+      _typeNode$fields !== void 0
+        ? _typeNode$fields
+        : [];
     for (const fieldDef of fieldNodes) {
+      var _fieldDef$arguments;
       const fieldName = fieldDef.name.value;
+
       // FIXME: https://github.com/graphql/graphql-js/issues/2203
       /* c8 ignore next */
-      const argumentNodes = fieldDef.arguments ?? [];
+      const argumentNodes =
+        (_fieldDef$arguments = fieldDef.arguments) !== null &&
+        _fieldDef$arguments !== void 0
+          ? _fieldDef$arguments
+          : [];
       checkArgUniqueness(`${typeName}.${fieldName}`, argumentNodes);
     }
     return false;
   }
   function checkArgUniqueness(parentName, argumentNodes) {
-    const seenArgs = (0, groupBy_js_1.groupBy)(
+    const seenArgs = (0, _groupBy.groupBy)(
       argumentNodes,
       (arg) => arg.name.value,
     );
     for (const [argName, argNodes] of seenArgs) {
       if (argNodes.length > 1) {
         context.reportError(
-          new GraphQLError_js_1.GraphQLError(
+          new _GraphQLError.GraphQLError(
             `Argument "${parentName}(${argName}:)" can only be defined once.`,
-            { nodes: argNodes.map((node) => node.name) },
+            {
+              nodes: argNodes.map((node) => node.name),
+            },
           ),
         );
       }
@@ -54,4 +76,3 @@ function UniqueArgumentDefinitionNamesRule(context) {
     return false;
   }
 }
-exports.UniqueArgumentDefinitionNamesRule = UniqueArgumentDefinitionNamesRule;

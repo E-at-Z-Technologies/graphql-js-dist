@@ -1,7 +1,10 @@
 'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.UniqueOperationNamesRule = void 0;
-const GraphQLError_js_1 = require('../../error/GraphQLError.js');
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.UniqueOperationNamesRule = UniqueOperationNamesRule;
+var _GraphQLError = require('../../error/GraphQLError.js');
 /**
  * Unique operation names
  *
@@ -10,21 +13,25 @@ const GraphQLError_js_1 = require('../../error/GraphQLError.js');
  * See https://spec.graphql.org/draft/#sec-Operation-Name-Uniqueness
  */
 function UniqueOperationNamesRule(context) {
-  const knownOperationNames = new Map();
+  const knownOperationNames = Object.create(null);
   return {
     OperationDefinition(node) {
       const operationName = node.name;
-      if (operationName != null) {
-        const knownOperationName = knownOperationNames.get(operationName.value);
-        if (knownOperationName != null) {
+      if (operationName) {
+        if (knownOperationNames[operationName.value]) {
           context.reportError(
-            new GraphQLError_js_1.GraphQLError(
+            new _GraphQLError.GraphQLError(
               `There can be only one operation named "${operationName.value}".`,
-              { nodes: [knownOperationName, operationName] },
+              {
+                nodes: [
+                  knownOperationNames[operationName.value],
+                  operationName,
+                ],
+              },
             ),
           );
         } else {
-          knownOperationNames.set(operationName.value, operationName);
+          knownOperationNames[operationName.value] = operationName;
         }
       }
       return false;
@@ -32,4 +39,3 @@ function UniqueOperationNamesRule(context) {
     FragmentDefinition: () => false,
   };
 }
-exports.UniqueOperationNamesRule = UniqueOperationNamesRule;

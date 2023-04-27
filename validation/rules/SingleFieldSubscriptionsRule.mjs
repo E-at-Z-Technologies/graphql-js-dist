@@ -25,15 +25,15 @@ export function SingleFieldSubscriptionsRule(context) {
               fragments[definition.name.value] = definition;
             }
           }
-          const { groupedFieldSet } = collectFields(
+          const fields = collectFields(
             schema,
             fragments,
             variableValues,
             subscriptionType,
-            node,
+            node.selectionSet,
           );
-          if (groupedFieldSet.size > 1) {
-            const fieldSelectionLists = [...groupedFieldSet.values()];
+          if (fields.size > 1) {
+            const fieldSelectionLists = [...fields.values()];
             const extraFieldSelectionLists = fieldSelectionLists.slice(1);
             const extraFieldSelections = extraFieldSelectionLists.flat();
             context.reportError(
@@ -41,19 +41,24 @@ export function SingleFieldSubscriptionsRule(context) {
                 operationName != null
                   ? `Subscription "${operationName}" must select only one top level field.`
                   : 'Anonymous Subscription must select only one top level field.',
-                { nodes: extraFieldSelections },
+                {
+                  nodes: extraFieldSelections,
+                },
               ),
             );
           }
-          for (const fieldGroup of groupedFieldSet.values()) {
-            const fieldName = fieldGroup[0].name.value;
+          for (const fieldNodes of fields.values()) {
+            const field = fieldNodes[0];
+            const fieldName = field.name.value;
             if (fieldName.startsWith('__')) {
               context.reportError(
                 new GraphQLError(
                   operationName != null
                     ? `Subscription "${operationName}" must not select an introspection top level field.`
                     : 'Anonymous Subscription must not select an introspection top level field.',
-                  { nodes: fieldGroup },
+                  {
+                    nodes: fieldNodes,
+                  },
                 ),
               );
             }

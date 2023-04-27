@@ -1,16 +1,39 @@
 'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.OperationTypeNode =
-  exports.isNode =
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.Token =
   exports.QueryDocumentKeys =
-  exports.Token =
+  exports.OperationTypeNode =
   exports.Location =
     void 0;
+exports.isNode = isNode;
 /**
  * Contains a range of UTF-8 character offsets and token references that
  * identify the region of the source from which the AST derived.
  */
 class Location {
+  /**
+   * The character offset at which this Node begins.
+   */
+
+  /**
+   * The character offset at which this Node ends.
+   */
+
+  /**
+   * The Token at which this Node begins.
+   */
+
+  /**
+   * The Token at which this Node ends.
+   */
+
+  /**
+   * The Source document the AST represents.
+   */
+
   constructor(startToken, endToken, source) {
     this.start = startToken.start;
     this.end = endToken.end;
@@ -22,16 +45,52 @@ class Location {
     return 'Location';
   }
   toJSON() {
-    return { start: this.start, end: this.end };
+    return {
+      start: this.start,
+      end: this.end,
+    };
   }
 }
-exports.Location = Location;
+
 /**
  * Represents a range of characters represented by a lexical token
  * within a Source.
  */
+exports.Location = Location;
 class Token {
-  // eslint-disable-next-line max-params
+  /**
+   * The kind of Token.
+   */
+
+  /**
+   * The character offset at which this Node begins.
+   */
+
+  /**
+   * The character offset at which this Node ends.
+   */
+
+  /**
+   * The 1-indexed line number on which this Token appears.
+   */
+
+  /**
+   * The 1-indexed column number at which this Token begins.
+   */
+
+  /**
+   * For non-punctuation tokens, represents the interpreted value of the token.
+   *
+   * Note: is undefined for punctuation tokens, but typed as string for
+   * convenience in the parser.
+   */
+
+  /**
+   * Tokens exist as nodes in a double-linked-list amongst all tokens
+   * including ignored tokens. <SOF> is always the first node and <EOF>
+   * the last.
+   */
+
   constructor(kind, start, end, line, column, value) {
     this.kind = kind;
     this.start = start;
@@ -55,11 +114,15 @@ class Token {
     };
   }
 }
+
+/**
+ * The list of all possible AST node types.
+ */
 exports.Token = Token;
 /**
  * @internal
  */
-exports.QueryDocumentKeys = {
+const QueryDocumentKeys = {
   Name: [],
   Document: ['definitions'],
   OperationDefinition: [
@@ -71,22 +134,8 @@ exports.QueryDocumentKeys = {
   VariableDefinition: ['variable', 'type', 'defaultValue', 'directives'],
   Variable: ['name'],
   SelectionSet: ['selections'],
-  Field: [
-    'alias',
-    'name',
-    'arguments',
-    'directives',
-    'selectionSet',
-    // Note: Client Controlled Nullability is experimental and may be changed
-    // or removed in the future.
-    'nullabilityAssertion',
-  ],
+  Field: ['alias', 'name', 'arguments', 'directives', 'selectionSet'],
   Argument: ['name', 'value'],
-  // Note: Client Controlled Nullability is experimental and may be changed
-  // or removed in the future.
-  ListNullabilityOperator: ['nullabilityAssertion'],
-  NonNullAssertion: ['nullabilityAssertion'],
-  ErrorBoundary: ['nullabilityAssertion'],
   FragmentSpread: ['name', 'directives'],
   InlineFragment: ['typeCondition', 'directives', 'selectionSet'],
   FragmentDefinition: [
@@ -148,21 +197,22 @@ exports.QueryDocumentKeys = {
   EnumTypeExtension: ['name', 'directives', 'values'],
   InputObjectTypeExtension: ['name', 'directives', 'fields'],
 };
-const kindValues = new Set(Object.keys(exports.QueryDocumentKeys));
+exports.QueryDocumentKeys = QueryDocumentKeys;
+const kindValues = new Set(Object.keys(QueryDocumentKeys));
 /**
  * @internal
  */
 function isNode(maybeNode) {
-  const maybeKind = maybeNode?.kind;
+  const maybeKind =
+    maybeNode === null || maybeNode === void 0 ? void 0 : maybeNode.kind;
   return typeof maybeKind === 'string' && kindValues.has(maybeKind);
 }
-exports.isNode = isNode;
+
+/** Name */
 var OperationTypeNode;
+exports.OperationTypeNode = OperationTypeNode;
 (function (OperationTypeNode) {
   OperationTypeNode['QUERY'] = 'query';
   OperationTypeNode['MUTATION'] = 'mutation';
   OperationTypeNode['SUBSCRIPTION'] = 'subscription';
-})(
-  (OperationTypeNode =
-    exports.OperationTypeNode || (exports.OperationTypeNode = {})),
-);
+})(OperationTypeNode || (exports.OperationTypeNode = OperationTypeNode = {}));

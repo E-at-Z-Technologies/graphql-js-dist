@@ -1,17 +1,21 @@
 'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.printSourceLocation = exports.printLocation = void 0;
-const location_js_1 = require('./location.js');
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.printLocation = printLocation;
+exports.printSourceLocation = printSourceLocation;
+var _location = require('./location.js');
 /**
  * Render a helpful description of the location in the GraphQL Source document.
  */
 function printLocation(location) {
   return printSourceLocation(
     location.source,
-    (0, location_js_1.getLocation)(location.source, location.start),
+    (0, _location.getLocation)(location.source, location.start),
   );
 }
-exports.printLocation = printLocation;
+
 /**
  * Render a helpful description of the location in the GraphQL Source document.
  */
@@ -26,6 +30,7 @@ function printSourceLocation(source, sourceLocation) {
   const locationStr = `${source.name}:${lineNum}:${columnNum}\n`;
   const lines = body.split(/\r\n|[\n\r]/g);
   const locationLine = lines[lineIndex];
+
   // Special case for minified documents
   if (locationLine.length > 120) {
     const subLineIndex = Math.floor(columnNum / 80);
@@ -55,7 +60,6 @@ function printSourceLocation(source, sourceLocation) {
     ])
   );
 }
-exports.printSourceLocation = printSourceLocation;
 function printPrefixedLines(lines) {
   const existingLines = lines.filter(([_, line]) => line !== undefined);
   const padLen = Math.max(...existingLines.map(([prefix]) => prefix.length));

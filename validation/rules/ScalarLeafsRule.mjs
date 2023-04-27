@@ -20,7 +20,9 @@ export function ScalarLeafsRule(context) {
             context.reportError(
               new GraphQLError(
                 `Field "${fieldName}" must not have a selection since type "${typeStr}" has no subfields.`,
-                { nodes: selectionSet },
+                {
+                  nodes: selectionSet,
+                },
               ),
             );
           }
@@ -30,7 +32,9 @@ export function ScalarLeafsRule(context) {
           context.reportError(
             new GraphQLError(
               `Field "${fieldName}" of type "${typeStr}" must have a selection of subfields. Did you mean "${fieldName} { ... }"?`,
-              { nodes: node },
+              {
+                nodes: node,
+              },
             ),
           );
         }

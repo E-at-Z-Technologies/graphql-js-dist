@@ -1,43 +1,43 @@
 'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.coerceInputValue = void 0;
-const didYouMean_js_1 = require('../jsutils/didYouMean.js');
-const inspect_js_1 = require('../jsutils/inspect.js');
-const invariant_js_1 = require('../jsutils/invariant.js');
-const isIterableObject_js_1 = require('../jsutils/isIterableObject.js');
-const isObjectLike_js_1 = require('../jsutils/isObjectLike.js');
-const Path_js_1 = require('../jsutils/Path.js');
-const printPathArray_js_1 = require('../jsutils/printPathArray.js');
-const suggestionList_js_1 = require('../jsutils/suggestionList.js');
-const GraphQLError_js_1 = require('../error/GraphQLError.js');
-const definition_js_1 = require('../type/definition.js');
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.coerceInputValue = coerceInputValue;
+var _didYouMean = require('../jsutils/didYouMean.js');
+var _inspect = require('../jsutils/inspect.js');
+var _invariant = require('../jsutils/invariant.js');
+var _isIterableObject = require('../jsutils/isIterableObject.js');
+var _isObjectLike = require('../jsutils/isObjectLike.js');
+var _Path = require('../jsutils/Path.js');
+var _printPathArray = require('../jsutils/printPathArray.js');
+var _suggestionList = require('../jsutils/suggestionList.js');
+var _GraphQLError = require('../error/GraphQLError.js');
+var _definition = require('../type/definition.js');
 /**
  * Coerces a JavaScript value given a GraphQL Input Type.
  */
 function coerceInputValue(inputValue, type, onError = defaultOnError) {
   return coerceInputValueImpl(inputValue, type, onError, undefined);
 }
-exports.coerceInputValue = coerceInputValue;
 function defaultOnError(path, invalidValue, error) {
-  let errorPrefix = 'Invalid value ' + (0, inspect_js_1.inspect)(invalidValue);
+  let errorPrefix = 'Invalid value ' + (0, _inspect.inspect)(invalidValue);
   if (path.length > 0) {
-    errorPrefix += ` at "value${(0, printPathArray_js_1.printPathArray)(
-      path,
-    )}"`;
+    errorPrefix += ` at "value${(0, _printPathArray.printPathArray)(path)}"`;
   }
   error.message = errorPrefix + ': ' + error.message;
   throw error;
 }
 function coerceInputValueImpl(inputValue, type, onError, path) {
-  if ((0, definition_js_1.isNonNullType)(type)) {
+  if ((0, _definition.isNonNullType)(type)) {
     if (inputValue != null) {
       return coerceInputValueImpl(inputValue, type.ofType, onError, path);
     }
     onError(
-      (0, Path_js_1.pathToArray)(path),
+      (0, _Path.pathToArray)(path),
       inputValue,
-      new GraphQLError_js_1.GraphQLError(
-        `Expected non-nullable type "${(0, inspect_js_1.inspect)(
+      new _GraphQLError.GraphQLError(
+        `Expected non-nullable type "${(0, _inspect.inspect)(
           type,
         )}" not to be null.`,
       ),
@@ -48,23 +48,23 @@ function coerceInputValueImpl(inputValue, type, onError, path) {
     // Explicitly return the value null.
     return null;
   }
-  if ((0, definition_js_1.isListType)(type)) {
+  if ((0, _definition.isListType)(type)) {
     const itemType = type.ofType;
-    if ((0, isIterableObject_js_1.isIterableObject)(inputValue)) {
+    if ((0, _isIterableObject.isIterableObject)(inputValue)) {
       return Array.from(inputValue, (itemValue, index) => {
-        const itemPath = (0, Path_js_1.addPath)(path, index, undefined);
+        const itemPath = (0, _Path.addPath)(path, index, undefined);
         return coerceInputValueImpl(itemValue, itemType, onError, itemPath);
       });
     }
     // Lists accept a non-list value as a list of one.
     return [coerceInputValueImpl(inputValue, itemType, onError, path)];
   }
-  if ((0, definition_js_1.isInputObjectType)(type)) {
-    if (!(0, isObjectLike_js_1.isObjectLike)(inputValue)) {
+  if ((0, _definition.isInputObjectType)(type)) {
+    if (!(0, _isObjectLike.isObjectLike)(inputValue)) {
       onError(
-        (0, Path_js_1.pathToArray)(path),
+        (0, _Path.pathToArray)(path),
         inputValue,
-        new GraphQLError_js_1.GraphQLError(
+        new _GraphQLError.GraphQLError(
           `Expected type "${type.name}" to be an object.`,
         ),
       );
@@ -77,12 +77,12 @@ function coerceInputValueImpl(inputValue, type, onError, path) {
       if (fieldValue === undefined) {
         if (field.defaultValue !== undefined) {
           coercedValue[field.name] = field.defaultValue;
-        } else if ((0, definition_js_1.isNonNullType)(field.type)) {
-          const typeStr = (0, inspect_js_1.inspect)(field.type);
+        } else if ((0, _definition.isNonNullType)(field.type)) {
+          const typeStr = (0, _inspect.inspect)(field.type);
           onError(
-            (0, Path_js_1.pathToArray)(path),
+            (0, _Path.pathToArray)(path),
             inputValue,
-            new GraphQLError_js_1.GraphQLError(
+            new _GraphQLError.GraphQLError(
               `Field "${field.name}" of required type "${typeStr}" was not provided.`,
             ),
           );
@@ -93,43 +93,45 @@ function coerceInputValueImpl(inputValue, type, onError, path) {
         fieldValue,
         field.type,
         onError,
-        (0, Path_js_1.addPath)(path, field.name, type.name),
+        (0, _Path.addPath)(path, field.name, type.name),
       );
     }
+
     // Ensure every provided field is defined.
     for (const fieldName of Object.keys(inputValue)) {
-      if (fieldDefs[fieldName] == null) {
-        const suggestions = (0, suggestionList_js_1.suggestionList)(
+      if (!fieldDefs[fieldName]) {
+        const suggestions = (0, _suggestionList.suggestionList)(
           fieldName,
           Object.keys(type.getFields()),
         );
         onError(
-          (0, Path_js_1.pathToArray)(path),
+          (0, _Path.pathToArray)(path),
           inputValue,
-          new GraphQLError_js_1.GraphQLError(
+          new _GraphQLError.GraphQLError(
             `Field "${fieldName}" is not defined by type "${type.name}".` +
-              (0, didYouMean_js_1.didYouMean)(suggestions),
+              (0, _didYouMean.didYouMean)(suggestions),
           ),
         );
       }
     }
     return coercedValue;
   }
-  if ((0, definition_js_1.isLeafType)(type)) {
+  if ((0, _definition.isLeafType)(type)) {
     let parseResult;
-    // Scalars and Enums determine if an input value is valid via parseValue(),
+
+    // Scalars and Enums determine if a input value is valid via parseValue(),
     // which can throw to indicate failure. If it throws, maintain a reference
     // to the original error.
     try {
       parseResult = type.parseValue(inputValue);
     } catch (error) {
-      if (error instanceof GraphQLError_js_1.GraphQLError) {
-        onError((0, Path_js_1.pathToArray)(path), inputValue, error);
+      if (error instanceof _GraphQLError.GraphQLError) {
+        onError((0, _Path.pathToArray)(path), inputValue, error);
       } else {
         onError(
-          (0, Path_js_1.pathToArray)(path),
+          (0, _Path.pathToArray)(path),
           inputValue,
-          new GraphQLError_js_1.GraphQLError(
+          new _GraphQLError.GraphQLError(
             `Expected type "${type.name}". ` + error.message,
             {
               originalError: error,
@@ -141,9 +143,9 @@ function coerceInputValueImpl(inputValue, type, onError, path) {
     }
     if (parseResult === undefined) {
       onError(
-        (0, Path_js_1.pathToArray)(path),
+        (0, _Path.pathToArray)(path),
         inputValue,
-        new GraphQLError_js_1.GraphQLError(`Expected type "${type.name}".`),
+        new _GraphQLError.GraphQLError(`Expected type "${type.name}".`),
       );
     }
     return parseResult;
@@ -151,8 +153,8 @@ function coerceInputValueImpl(inputValue, type, onError, path) {
   /* c8 ignore next 3 */
   // Not reachable, all possible types have been considered.
   false ||
-    (0, invariant_js_1.invariant)(
+    (0, _invariant.invariant)(
       false,
-      'Unexpected input type: ' + (0, inspect_js_1.inspect)(type),
+      'Unexpected input type: ' + (0, _inspect.inspect)(type),
     );
 }

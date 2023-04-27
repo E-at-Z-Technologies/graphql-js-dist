@@ -1,5 +1,5 @@
-import type { Maybe } from '../jsutils/Maybe.js';
-import type { GraphQLError } from '../error/GraphQLError.js';
+import type { Maybe } from '../jsutils/Maybe';
+import type { GraphQLError } from '../error/GraphQLError';
 import type {
   ArgumentNode,
   ConstArgumentNode,
@@ -28,7 +28,6 @@ import type {
   ListValueNode,
   NamedTypeNode,
   NameNode,
-  NullabilityAssertionNode,
   ObjectFieldNode,
   ObjectTypeDefinitionNode,
   ObjectTypeExtensionNode,
@@ -50,11 +49,11 @@ import type {
   ValueNode,
   VariableDefinitionNode,
   VariableNode,
-} from './ast.js';
-import { Location, OperationTypeNode } from './ast.js';
-import { Lexer } from './lexer.js';
-import { Source } from './source.js';
-import { TokenKind } from './tokenKind.js';
+} from './ast';
+import { Location, OperationTypeNode } from './ast';
+import { Lexer } from './lexer';
+import { Source } from './source';
+import { TokenKind } from './tokenKind';
 /**
  * Configuration options to control parser behavior
  */
@@ -64,7 +63,7 @@ export interface ParseOptions {
    * in the source that they correspond to. This configuration flag
    * disables that behavior for performance or testing.
    */
-  noLocation?: boolean | undefined;
+  noLocation?: boolean;
   /**
    * Parser CPU and memory usage is linear to the number of tokens in a document
    * however in extreme cases it becomes quadratic due to memory exhaustion.
@@ -88,29 +87,7 @@ export interface ParseOptions {
    * }
    * ```
    */
-  allowLegacyFragmentVariables?: boolean | undefined;
-  /**
-   * EXPERIMENTAL:
-   *
-   * If enabled, the parser will understand and parse Client Controlled Nullability
-   * Designators contained in Fields. They'll be represented in the
-   * `nullabilityAssertion` field of the FieldNode.
-   *
-   * The syntax looks like the following:
-   *
-   * ```graphql
-   *   {
-   *     nullableField!
-   *     nonNullableField?
-   *     nonNullableSelectionSet? {
-   *       childField!
-   *     }
-   *   }
-   * ```
-   * Note: this feature is experimental and may change or be removed in the
-   * future.
-   */
-  experimentalClientControlledNullability?: boolean | undefined;
+  allowLegacyFragmentVariables?: boolean;
 }
 /**
  * Given a GraphQL source, parses it into a Document.
@@ -245,7 +222,6 @@ export declare class Parser {
    * Alias : Name :
    */
   parseField(): FieldNode;
-  parseNullabilityAssertion(): NullabilityAssertionNode | undefined;
   /**
    * Arguments[Const] : ( Argument[?Const]+ )
    */
@@ -520,7 +496,7 @@ export declare class Parser {
    */
   node<
     T extends {
-      loc?: Location | undefined;
+      loc?: Location;
     },
   >(startToken: Token, node: T): T;
   /**

@@ -1,3 +1,5 @@
+import { devAssert } from '../jsutils/devAssert.mjs';
+import { Kind } from '../language/kinds.mjs';
 import { parse } from '../language/parser.mjs';
 import { specifiedDirectives } from '../type/directives.mjs';
 import { GraphQLSchema } from '../type/schema.mjs';
@@ -14,7 +16,15 @@ import { extendSchemaImpl } from './extendSchema.mjs';
  * has no resolve methods, so execution will use default resolvers.
  */
 export function buildASTSchema(documentAST, options) {
-  if (options?.assumeValid !== true && options?.assumeValidSDL !== true) {
+  (documentAST != null && documentAST.kind === Kind.DOCUMENT) ||
+    devAssert(false, 'Must provide valid Document AST.');
+  if (
+    (options === null || options === void 0 ? void 0 : options.assumeValid) !==
+      true &&
+    (options === null || options === void 0
+      ? void 0
+      : options.assumeValidSDL) !== true
+  ) {
     assertValidSDL(documentAST);
   }
   const emptySchemaConfig = {
@@ -56,19 +66,29 @@ export function buildASTSchema(documentAST, options) {
       ),
     ),
   ];
-  return new GraphQLSchema({ ...config, directives });
+  return new GraphQLSchema({
+    ...config,
+    directives,
+  });
 }
+
 /**
  * A helper function to build a GraphQLSchema directly from a source
  * document.
  */
 export function buildSchema(source, options) {
   const document = parse(source, {
-    noLocation: options?.noLocation,
-    allowLegacyFragmentVariables: options?.allowLegacyFragmentVariables,
+    noLocation:
+      options === null || options === void 0 ? void 0 : options.noLocation,
+    allowLegacyFragmentVariables:
+      options === null || options === void 0
+        ? void 0
+        : options.allowLegacyFragmentVariables,
   });
   return buildASTSchema(document, {
-    assumeValidSDL: options?.assumeValidSDL,
-    assumeValid: options?.assumeValid,
+    assumeValidSDL:
+      options === null || options === void 0 ? void 0 : options.assumeValidSDL,
+    assumeValid:
+      options === null || options === void 0 ? void 0 : options.assumeValid,
   });
 }

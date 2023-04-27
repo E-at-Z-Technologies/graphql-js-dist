@@ -1,6 +1,9 @@
 'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.memoize3 = void 0;
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.memoize3 = memoize3;
 /**
  * Memoizes the provided three-argument function.
  */
@@ -28,4 +31,3 @@ function memoize3(fn) {
     return fnResult;
   };
 }
-exports.memoize3 = memoize3;

@@ -1,5 +1,6 @@
 import { didYouMean } from '../../jsutils/didYouMean.mjs';
 import { inspect } from '../../jsutils/inspect.mjs';
+import { keyMap } from '../../jsutils/keyMap.mjs';
 import { suggestionList } from '../../jsutils/suggestionList.mjs';
 import { GraphQLError } from '../../error/GraphQLError.mjs';
 import { print } from '../../language/printer.mjs';
@@ -31,6 +32,7 @@ export function ValuesOfCorrectTypeRule(context) {
         return false; // Don't traverse further.
       }
     },
+
     ObjectValue(node) {
       const type = getNamedType(context.getInputType());
       if (!isInputObjectType(type)) {
@@ -38,17 +40,17 @@ export function ValuesOfCorrectTypeRule(context) {
         return false; // Don't traverse further.
       }
       // Ensure every required field exists.
-      const fieldNodeMap = new Map(
-        node.fields.map((field) => [field.name.value, field]),
-      );
+      const fieldNodeMap = keyMap(node.fields, (field) => field.name.value);
       for (const fieldDef of Object.values(type.getFields())) {
-        const fieldNode = fieldNodeMap.get(fieldDef.name);
+        const fieldNode = fieldNodeMap[fieldDef.name];
         if (!fieldNode && isRequiredInputField(fieldDef)) {
           const typeStr = inspect(fieldDef.type);
           context.reportError(
             new GraphQLError(
               `Field "${type.name}.${fieldDef.name}" of required type "${typeStr}" was not provided.`,
-              { nodes: node },
+              {
+                nodes: node,
+              },
             ),
           );
         }
@@ -66,7 +68,9 @@ export function ValuesOfCorrectTypeRule(context) {
           new GraphQLError(
             `Field "${node.name.value}" is not defined by type "${parentType.name}".` +
               didYouMean(suggestions),
-            { nodes: node },
+            {
+              nodes: node,
+            },
           ),
         );
       }
@@ -77,7 +81,9 @@ export function ValuesOfCorrectTypeRule(context) {
         context.reportError(
           new GraphQLError(
             `Expected value of type "${inspect(type)}", found ${print(node)}.`,
-            { nodes: node },
+            {
+              nodes: node,
+            },
           ),
         );
       }
@@ -89,6 +95,7 @@ export function ValuesOfCorrectTypeRule(context) {
     BooleanValue: (node) => isValidValueNode(context, node),
   };
 }
+
 /**
  * Any value literal may be a valid representation of a Scalar, depending on
  * that scalar type.
@@ -105,11 +112,14 @@ function isValidValueNode(context, node) {
     context.reportError(
       new GraphQLError(
         `Expected value of type "${typeStr}", found ${print(node)}.`,
-        { nodes: node },
+        {
+          nodes: node,
+        },
       ),
     );
     return;
   }
+
   // Scalars and Enums determine if a literal value is valid via parseLiteral(),
   // which may throw or return an invalid value to indicate failure.
   try {
@@ -119,7 +129,9 @@ function isValidValueNode(context, node) {
       context.reportError(
         new GraphQLError(
           `Expected value of type "${typeStr}", found ${print(node)}.`,
-          { nodes: node },
+          {
+            nodes: node,
+          },
         ),
       );
     }
@@ -132,7 +144,10 @@ function isValidValueNode(context, node) {
         new GraphQLError(
           `Expected value of type "${typeStr}", found ${print(node)}; ` +
             error.message,
-          { nodes: node, originalError: error },
+          {
+            nodes: node,
+            originalError: error,
+          },
         ),
       );
     }

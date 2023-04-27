@@ -1,5 +1,5 @@
-import type { Maybe } from '../jsutils/Maybe.js';
-import type { GraphQLError } from '../error/GraphQLError.js';
+import type { Maybe } from '../jsutils/Maybe';
+import type { GraphQLError } from '../error/GraphQLError';
 import type {
   DocumentNode,
   FragmentDefinitionNode,
@@ -7,8 +7,8 @@ import type {
   OperationDefinitionNode,
   SelectionSetNode,
   VariableNode,
-} from '../language/ast.js';
-import type { ASTVisitor } from '../language/visitor.js';
+} from '../language/ast';
+import type { ASTVisitor } from '../language/visitor';
 import type {
   GraphQLArgument,
   GraphQLCompositeType,
@@ -16,10 +16,10 @@ import type {
   GraphQLField,
   GraphQLInputType,
   GraphQLOutputType,
-} from '../type/definition.js';
-import type { GraphQLDirective } from '../type/directives.js';
-import type { GraphQLSchema } from '../type/schema.js';
-import { TypeInfo } from '../utilities/TypeInfo.js';
+} from '../type/definition';
+import type { GraphQLDirective } from '../type/directives';
+import type { GraphQLSchema } from '../type/schema';
+import { TypeInfo } from '../utilities/TypeInfo';
 type NodeWithSelectionSet = OperationDefinitionNode | FragmentDefinitionNode;
 interface VariableUsage {
   readonly node: VariableNode;

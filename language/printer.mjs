@@ -1,6 +1,7 @@
 import { printBlockString } from './blockString.mjs';
 import { printString } from './printString.mjs';
 import { visit } from './visitor.mjs';
+
 /**
  * Converts an AST into a string, using one set of reasonable
  * formatting rules.
@@ -10,9 +11,14 @@ export function print(ast) {
 }
 const MAX_LINE_LENGTH = 80;
 const printDocASTReducer = {
-  Name: { leave: (node) => node.value },
-  Variable: { leave: (node) => '$' + node.name },
+  Name: {
+    leave: (node) => node.value,
+  },
+  Variable: {
+    leave: (node) => '$' + node.name,
+  },
   // Document
+
   Document: {
     leave: (node) => join(node.definitions, '\n\n'),
   },
@@ -27,6 +33,7 @@ const printDocASTReducer = {
         ],
         ' ',
       );
+
       // Anonymous queries with no directives or variable definitions can use
       // the query short form.
       return (prefix === 'query' ? '' : prefix + ' ') + node.selectionSet;
@@ -40,49 +47,24 @@ const printDocASTReducer = {
       wrap(' = ', defaultValue) +
       wrap(' ', join(directives, ' ')),
   },
-  SelectionSet: { leave: ({ selections }) => block(selections) },
+  SelectionSet: {
+    leave: ({ selections }) => block(selections),
+  },
   Field: {
-    leave({
-      alias,
-      name,
-      arguments: args,
-      nullabilityAssertion,
-      directives,
-      selectionSet,
-    }) {
-      const prefix = join([wrap('', alias, ': '), name], '');
+    leave({ alias, name, arguments: args, directives, selectionSet }) {
+      const prefix = wrap('', alias, ': ') + name;
       let argsLine = prefix + wrap('(', join(args, ', '), ')');
       if (argsLine.length > MAX_LINE_LENGTH) {
         argsLine = prefix + wrap('(\n', indent(join(args, '\n')), '\n)');
       }
-      return join([
-        argsLine,
-        // Note: Client Controlled Nullability is experimental and may be
-        // changed or removed in the future.
-        nullabilityAssertion,
-        wrap(' ', join(directives, ' ')),
-        wrap(' ', selectionSet),
-      ]);
+      return join([argsLine, join(directives, ' '), selectionSet], ' ');
     },
   },
-  Argument: { leave: ({ name, value }) => name + ': ' + value },
-  // Nullability Modifiers
-  ListNullabilityOperator: {
-    leave({ nullabilityAssertion }) {
-      return join(['[', nullabilityAssertion, ']']);
-    },
-  },
-  NonNullAssertion: {
-    leave({ nullabilityAssertion }) {
-      return join([nullabilityAssertion, '!']);
-    },
-  },
-  ErrorBoundary: {
-    leave({ nullabilityAssertion }) {
-      return join([nullabilityAssertion, '?']);
-    },
+  Argument: {
+    leave: ({ name, value }) => name + ': ' + value,
   },
   // Fragments
+
   FragmentSpread: {
     leave: ({ name, directives }) =>
       '...' + name + wrap(' ', join(directives, ' ')),
@@ -114,41 +96,54 @@ const printDocASTReducer = {
       selectionSet,
   },
   // Value
-  IntValue: { leave: ({ value }) => value },
-  FloatValue: { leave: ({ value }) => value },
+
+  IntValue: {
+    leave: ({ value }) => value,
+  },
+  FloatValue: {
+    leave: ({ value }) => value,
+  },
   StringValue: {
     leave: ({ value, block: isBlockString }) =>
-      isBlockString === true ? printBlockString(value) : printString(value),
+      isBlockString ? printBlockString(value) : printString(value),
   },
-  BooleanValue: { leave: ({ value }) => (value ? 'true' : 'false') },
-  NullValue: { leave: () => 'null' },
-  EnumValue: { leave: ({ value }) => value },
+  BooleanValue: {
+    leave: ({ value }) => (value ? 'true' : 'false'),
+  },
+  NullValue: {
+    leave: () => 'null',
+  },
+  EnumValue: {
+    leave: ({ value }) => value,
+  },
   ListValue: {
-    leave: ({ values }) => {
-      const valuesLine = '[' + join(values, ', ') + ']';
-      if (valuesLine.length > MAX_LINE_LENGTH) {
-        return '[\n' + indent(join(values, '\n')) + '\n]';
-      }
-      return valuesLine;
-    },
+    leave: ({ values }) => '[' + join(values, ', ') + ']',
   },
   ObjectValue: {
-    leave: ({ fields }) => {
-      const fieldsLine = '{ ' + join(fields, ', ') + ' }';
-      return fieldsLine.length > MAX_LINE_LENGTH ? block(fields) : fieldsLine;
-    },
+    leave: ({ fields }) => '{' + join(fields, ', ') + '}',
   },
-  ObjectField: { leave: ({ name, value }) => name + ': ' + value },
+  ObjectField: {
+    leave: ({ name, value }) => name + ': ' + value,
+  },
   // Directive
+
   Directive: {
     leave: ({ name, arguments: args }) =>
       '@' + name + wrap('(', join(args, ', '), ')'),
   },
   // Type
-  NamedType: { leave: ({ name }) => name },
-  ListType: { leave: ({ type }) => '[' + type + ']' },
-  NonNullType: { leave: ({ type }) => type + '!' },
+
+  NamedType: {
+    leave: ({ name }) => name,
+  },
+  ListType: {
+    leave: ({ type }) => '[' + type + ']',
+  },
+  NonNullType: {
+    leave: ({ type }) => type + '!',
+  },
   // Type System Definitions
+
   SchemaDefinition: {
     leave: ({ description, directives, operationTypes }) =>
       wrap('', description, '\n') +
@@ -301,19 +296,29 @@ const printDocASTReducer = {
       join(['extend input', name, join(directives, ' '), block(fields)], ' '),
   },
 };
+
 /**
  * Given maybeArray, print an empty string if it is null or empty, otherwise
  * print all items together separated by separator if provided
  */
 function join(maybeArray, separator = '') {
-  return maybeArray?.filter((x) => x).join(separator) ?? '';
+  var _maybeArray$filter$jo;
+  return (_maybeArray$filter$jo =
+    maybeArray === null || maybeArray === void 0
+      ? void 0
+      : maybeArray.filter((x) => x).join(separator)) !== null &&
+    _maybeArray$filter$jo !== void 0
+    ? _maybeArray$filter$jo
+    : '';
 }
+
 /**
  * Given array, print each item on its own line, wrapped in an indented `{ }` block.
  */
 function block(array) {
   return wrap('{\n', indent(join(array, '\n')), '\n}');
 }
+
 /**
  * If maybeString is not null or empty, then wrap with start and end, otherwise print an empty string.
  */
@@ -323,10 +328,17 @@ function wrap(start, maybeString, end = '') {
     : '';
 }
 function indent(str) {
-  return wrap('  ', str.replaceAll('\n', '\n  '));
+  return wrap('  ', str.replace(/\n/g, '\n  '));
 }
 function hasMultilineItems(maybeArray) {
+  var _maybeArray$some;
   // FIXME: https://github.com/graphql/graphql-js/issues/2203
   /* c8 ignore next */
-  return maybeArray?.some((str) => str.includes('\n')) ?? false;
+  return (_maybeArray$some =
+    maybeArray === null || maybeArray === void 0
+      ? void 0
+      : maybeArray.some((str) => str.includes('\n'))) !== null &&
+    _maybeArray$some !== void 0
+    ? _maybeArray$some
+    : false;
 }

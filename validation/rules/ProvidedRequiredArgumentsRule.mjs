@@ -1,4 +1,5 @@
 import { inspect } from '../../jsutils/inspect.mjs';
+import { keyMap } from '../../jsutils/keyMap.mjs';
 import { GraphQLError } from '../../error/GraphQLError.mjs';
 import { Kind } from '../../language/kinds.mjs';
 import { print } from '../../language/printer.mjs';
@@ -17,14 +18,17 @@ export function ProvidedRequiredArgumentsRule(context) {
     Field: {
       // Validate on leave to allow for deeper errors to appear first.
       leave(fieldNode) {
+        var _fieldNode$arguments;
         const fieldDef = context.getFieldDef();
         if (!fieldDef) {
           return false;
         }
-        const providedArgs = new Set(
-          // FIXME: https://github.com/graphql/graphql-js/issues/2203
+        const providedArgs = new Set( // FIXME: https://github.com/graphql/graphql-js/issues/2203
           /* c8 ignore next */
-          fieldNode.arguments?.map((arg) => arg.name.value),
+          (_fieldNode$arguments = fieldNode.arguments) === null ||
+          _fieldNode$arguments === void 0
+            ? void 0
+            : _fieldNode$arguments.map((arg) => arg.name.value),
         );
         for (const argDef of fieldDef.args) {
           if (!providedArgs.has(argDef.name) && isRequiredArgument(argDef)) {
@@ -32,7 +36,9 @@ export function ProvidedRequiredArgumentsRule(context) {
             context.reportError(
               new GraphQLError(
                 `Field "${fieldDef.name}" argument "${argDef.name}" of type "${argTypeStr}" is required, but it was not provided.`,
-                { nodes: fieldNode },
+                {
+                  nodes: fieldNode,
+                },
               ),
             );
           }
@@ -41,34 +47,40 @@ export function ProvidedRequiredArgumentsRule(context) {
     },
   };
 }
+
 /**
  * @internal
  */
 export function ProvidedRequiredArgumentsOnDirectivesRule(context) {
-  const requiredArgsMap = new Map();
+  var _schema$getDirectives;
+  const requiredArgsMap = Object.create(null);
   const schema = context.getSchema();
-  const definedDirectives = schema?.getDirectives() ?? specifiedDirectives;
+  const definedDirectives =
+    (_schema$getDirectives =
+      schema === null || schema === void 0
+        ? void 0
+        : schema.getDirectives()) !== null && _schema$getDirectives !== void 0
+      ? _schema$getDirectives
+      : specifiedDirectives;
   for (const directive of definedDirectives) {
-    requiredArgsMap.set(
-      directive.name,
-      new Map(
-        directive.args.filter(isRequiredArgument).map((arg) => [arg.name, arg]),
-      ),
+    requiredArgsMap[directive.name] = keyMap(
+      directive.args.filter(isRequiredArgument),
+      (arg) => arg.name,
     );
   }
   const astDefinitions = context.getDocument().definitions;
   for (const def of astDefinitions) {
     if (def.kind === Kind.DIRECTIVE_DEFINITION) {
+      var _def$arguments;
       // FIXME: https://github.com/graphql/graphql-js/issues/2203
       /* c8 ignore next */
-      const argNodes = def.arguments ?? [];
-      requiredArgsMap.set(
-        def.name.value,
-        new Map(
-          argNodes
-            .filter(isRequiredArgumentNode)
-            .map((arg) => [arg.name.value, arg]),
-        ),
+      const argNodes =
+        (_def$arguments = def.arguments) !== null && _def$arguments !== void 0
+          ? _def$arguments
+          : [];
+      requiredArgsMap[def.name.value] = keyMap(
+        argNodes.filter(isRequiredArgumentNode),
+        (arg) => arg.name.value,
       );
     }
   }
@@ -77,13 +89,18 @@ export function ProvidedRequiredArgumentsOnDirectivesRule(context) {
       // Validate on leave to allow for deeper errors to appear first.
       leave(directiveNode) {
         const directiveName = directiveNode.name.value;
-        const requiredArgs = requiredArgsMap.get(directiveName);
-        if (requiredArgs != null) {
+        const requiredArgs = requiredArgsMap[directiveName];
+        if (requiredArgs) {
+          var _directiveNode$argume;
           // FIXME: https://github.com/graphql/graphql-js/issues/2203
           /* c8 ignore next */
-          const argNodes = directiveNode.arguments ?? [];
+          const argNodes =
+            (_directiveNode$argume = directiveNode.arguments) !== null &&
+            _directiveNode$argume !== void 0
+              ? _directiveNode$argume
+              : [];
           const argNodeMap = new Set(argNodes.map((arg) => arg.name.value));
-          for (const [argName, argDef] of requiredArgs.entries()) {
+          for (const [argName, argDef] of Object.entries(requiredArgs)) {
             if (!argNodeMap.has(argName)) {
               const argType = isType(argDef.type)
                 ? inspect(argDef.type)
@@ -91,7 +108,9 @@ export function ProvidedRequiredArgumentsOnDirectivesRule(context) {
               context.reportError(
                 new GraphQLError(
                   `Directive "@${directiveName}" argument "${argName}" of type "${argType}" is required, but it was not provided.`,
-                  { nodes: directiveNode },
+                  {
+                    nodes: directiveNode,
+                  },
                 ),
               );
             }

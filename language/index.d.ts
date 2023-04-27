@@ -1,21 +1,24 @@
-export { Source } from './source.js';
-export { getLocation } from './location.js';
-export type { SourceLocation } from './location.js';
-export { printLocation, printSourceLocation } from './printLocation.js';
-export { Kind } from './kinds.js';
-export { TokenKind } from './tokenKind.js';
-export { Lexer } from './lexer.js';
-export { parse, parseValue, parseConstValue, parseType } from './parser.js';
-export type { ParseOptions } from './parser.js';
-export { print } from './printer.js';
+export { Source } from './source';
+export { getLocation } from './location';
+export type { SourceLocation } from './location';
+export { printLocation, printSourceLocation } from './printLocation';
+export { Kind } from './kinds';
+export type { KindEnum } from './kinds';
+export { TokenKind } from './tokenKind';
+export type { TokenKindEnum } from './tokenKind';
+export { Lexer } from './lexer';
+export { parse, parseValue, parseConstValue, parseType } from './parser';
+export type { ParseOptions } from './parser';
+export { print } from './printer';
 export {
   visit,
   visitInParallel,
+  getVisitFn,
   getEnterLeaveForKind,
   BREAK,
-} from './visitor.js';
-export type { ASTVisitor, ASTVisitFn, ASTVisitorKeyMap } from './visitor.js';
-export { Location, Token, OperationTypeNode } from './ast.js';
+} from './visitor';
+export type { ASTVisitor, ASTVisitFn, ASTVisitorKeyMap } from './visitor';
+export { Location, Token, OperationTypeNode } from './ast';
 export type {
   ASTNode,
   ASTKindToNode,
@@ -29,10 +32,6 @@ export type {
   SelectionSetNode,
   SelectionNode,
   FieldNode,
-  NullabilityAssertionNode,
-  NonNullAssertionNode,
-  ErrorBoundaryNode,
-  ListNullabilityOperatorNode,
   ArgumentNode,
   ConstArgumentNode,
   FragmentSpreadNode,
@@ -81,12 +80,11 @@ export type {
   UnionTypeExtensionNode,
   EnumTypeExtensionNode,
   InputObjectTypeExtensionNode,
-} from './ast.js';
+} from './ast';
 export {
   isDefinitionNode,
   isExecutableDefinitionNode,
   isSelectionNode,
-  isNullabilityAssertionNode,
   isValueNode,
   isConstValueNode,
   isTypeNode,
@@ -94,5 +92,6 @@ export {
   isTypeDefinitionNode,
   isTypeSystemExtensionNode,
   isTypeExtensionNode,
-} from './predicates.js';
-export { DirectiveLocation } from './directiveLocation.js';
+} from './predicates';
+export { DirectiveLocation } from './directiveLocation';
+export type { DirectiveLocationEnum } from './directiveLocation';

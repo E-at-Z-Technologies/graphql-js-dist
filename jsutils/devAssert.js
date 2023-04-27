@@ -1,9 +1,12 @@
 'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.devAssert = void 0;
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.devAssert = devAssert;
 function devAssert(condition, message) {
-  if (!condition) {
+  const booleanCondition = Boolean(condition);
+  if (!booleanCondition) {
     throw new Error(message);
   }
 }
-exports.devAssert = devAssert;

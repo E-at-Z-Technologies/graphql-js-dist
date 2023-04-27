@@ -1,6 +1,9 @@
 'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.isIterableObject = void 0;
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.isIterableObject = isIterableObject;
 /**
  * Returns true if the provided object is an Object (i.e. not a string literal)
  * and implements the Iterator protocol.
@@ -21,7 +24,8 @@ exports.isIterableObject = void 0;
 function isIterableObject(maybeIterable) {
   return (
     typeof maybeIterable === 'object' &&
-    typeof maybeIterable?.[Symbol.iterator] === 'function'
+    typeof (maybeIterable === null || maybeIterable === void 0
+      ? void 0
+      : maybeIterable[Symbol.iterator]) === 'function'
   );
 }
-exports.isIterableObject = isIterableObject;

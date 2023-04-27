@@ -10,31 +10,32 @@ import { GraphQLError } from '../../error/GraphQLError.mjs';
  */
 export function UniqueInputFieldNamesRule(context) {
   const knownNameStack = [];
-  let knownNames = new Map();
+  let knownNames = Object.create(null);
   return {
     ObjectValue: {
       enter() {
         knownNameStack.push(knownNames);
-        knownNames = new Map();
+        knownNames = Object.create(null);
       },
       leave() {
         const prevKnownNames = knownNameStack.pop();
-        prevKnownNames != null || invariant(false);
+        prevKnownNames || invariant(false);
         knownNames = prevKnownNames;
       },
     },
     ObjectField(node) {
       const fieldName = node.name.value;
-      const knownName = knownNames.get(fieldName);
-      if (knownName != null) {
+      if (knownNames[fieldName]) {
         context.reportError(
           new GraphQLError(
             `There can be only one input field named "${fieldName}".`,
-            { nodes: [knownName, node.name] },
+            {
+              nodes: [knownNames[fieldName], node.name],
+            },
           ),
         );
       } else {
-        knownNames.set(fieldName, node.name);
+        knownNames[fieldName] = node.name;
       }
     },
   };

@@ -1,4 +1,5 @@
 import { inspect } from './inspect.mjs';
+
 /**
  * A replacement for instanceof which includes an error warning when multi-realm
  * constructors are detected.
@@ -8,7 +9,8 @@ import { inspect } from './inspect.mjs';
 export const instanceOf =
   /* c8 ignore next 6 */
   // FIXME: https://github.com/graphql/graphql-js/issues/2317
-  globalThis.process?.env.NODE_ENV === 'production'
+  // eslint-disable-next-line no-undef
+  process.env.NODE_ENV === 'production'
     ? function instanceOf(value, constructor) {
         return value instanceof constructor;
       }
@@ -17,13 +19,18 @@ export const instanceOf =
           return true;
         }
         if (typeof value === 'object' && value !== null) {
+          var _value$constructor;
           // Prefer Symbol.toStringTag since it is immune to minification.
           const className = constructor.prototype[Symbol.toStringTag];
           const valueClassName =
             // We still need to support constructor's name to detect conflicts with older versions of this library.
             Symbol.toStringTag in value
-              ? value[Symbol.toStringTag]
-              : value.constructor?.name;
+              ? // @ts-expect-error TS bug see, https://github.com/microsoft/TypeScript/issues/38009
+                value[Symbol.toStringTag]
+              : (_value$constructor = value.constructor) === null ||
+                _value$constructor === void 0
+              ? void 0
+              : _value$constructor.name;
           if (className === valueClassName) {
             const stringifiedValue = inspect(value);
             throw new Error(`Cannot use ${className} "${stringifiedValue}" from another module or realm.

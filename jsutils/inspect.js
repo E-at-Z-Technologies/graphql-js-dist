@@ -1,15 +1,18 @@
 'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.inspect = void 0;
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.inspect = inspect;
 const MAX_ARRAY_LENGTH = 10;
 const MAX_RECURSIVE_DEPTH = 2;
+
 /**
  * Used to print values in error messages.
  */
 function inspect(value) {
   return formatValue(value, []);
 }
-exports.inspect = inspect;
 function formatValue(value, seenValues) {
   switch (typeof value) {
     case 'string':
@@ -32,6 +35,7 @@ function formatObjectValue(value, previouslySeenValues) {
   const seenValues = [...previouslySeenValues, value];
   if (isJSONable(value)) {
     const jsonValue = value.toJSON();
+
     // check for infinite recursion
     if (jsonValue !== value) {
       return typeof jsonValue === 'string'

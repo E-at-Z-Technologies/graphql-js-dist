@@ -1,11 +1,11 @@
-import type { Maybe } from './jsutils/Maybe.js';
-import type { Source } from './language/source.js';
+import type { Maybe } from './jsutils/Maybe';
+import type { Source } from './language/source';
 import type {
   GraphQLFieldResolver,
   GraphQLTypeResolver,
-} from './type/definition.js';
-import type { GraphQLSchema } from './type/schema.js';
-import type { ExecutionResult } from './execution/execute.js';
+} from './type/definition';
+import type { GraphQLSchema } from './type/schema';
+import type { ExecutionResult } from './execution/execute';
 /**
  * This is the primary entry point function for fulfilling GraphQL operations
  * by parsing, validating, and executing a GraphQL document along side a
@@ -14,8 +14,6 @@ import type { ExecutionResult } from './execution/execute.js';
  * More sophisticated GraphQL servers, such as those which persist queries,
  * may wish to separate the validation and execution phases to a static time
  * tooling step, and a server runtime step.
- *
- * This function does not support incremental delivery (`@defer` and `@stream`).
  *
  * Accepts either an object with named arguments, or individual arguments:
  *

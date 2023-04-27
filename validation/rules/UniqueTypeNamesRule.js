@@ -1,14 +1,17 @@
 'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.UniqueTypeNamesRule = void 0;
-const GraphQLError_js_1 = require('../../error/GraphQLError.js');
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.UniqueTypeNamesRule = UniqueTypeNamesRule;
+var _GraphQLError = require('../../error/GraphQLError.js');
 /**
  * Unique type names
  *
  * A GraphQL document is only valid if all defined types have unique names.
  */
 function UniqueTypeNamesRule(context) {
-  const knownTypeNames = new Map();
+  const knownTypeNames = Object.create(null);
   const schema = context.getSchema();
   return {
     ScalarTypeDefinition: checkTypeName,
@@ -20,29 +23,29 @@ function UniqueTypeNamesRule(context) {
   };
   function checkTypeName(node) {
     const typeName = node.name.value;
-    if (schema?.getType(typeName)) {
+    if (schema !== null && schema !== void 0 && schema.getType(typeName)) {
       context.reportError(
-        new GraphQLError_js_1.GraphQLError(
+        new _GraphQLError.GraphQLError(
           `Type "${typeName}" already exists in the schema. It cannot also be defined in this type definition.`,
-          { nodes: node.name },
+          {
+            nodes: node.name,
+          },
         ),
       );
       return;
     }
-    const knownNameNode = knownTypeNames.get(typeName);
-    if (knownNameNode != null) {
+    if (knownTypeNames[typeName]) {
       context.reportError(
-        new GraphQLError_js_1.GraphQLError(
+        new _GraphQLError.GraphQLError(
           `There can be only one type named "${typeName}".`,
           {
-            nodes: [knownNameNode, node.name],
+            nodes: [knownTypeNames[typeName], node.name],
           },
         ),
       );
     } else {
-      knownTypeNames.set(typeName, node.name);
+      knownTypeNames[typeName] = node.name;
     }
     return false;
   }
 }
-exports.UniqueTypeNamesRule = UniqueTypeNamesRule;

@@ -25,21 +25,26 @@ export function FieldsOnCorrectTypeRule(context) {
           // This field doesn't exist, lets look for suggestions.
           const schema = context.getSchema();
           const fieldName = node.name.value;
+
           // First determine if there are any suggested types to condition on.
           let suggestion = didYouMean(
             'to use an inline fragment on',
             getSuggestedTypeNames(schema, type, fieldName),
           );
+
           // If there are no suggested types, then perhaps this was a typo?
           if (suggestion === '') {
             suggestion = didYouMean(getSuggestedFieldNames(type, fieldName));
           }
+
           // Report an error, including helpful suggestions.
           context.reportError(
             new GraphQLError(
               `Cannot query field "${fieldName}" on type "${type.name}".` +
                 suggestion,
-              { nodes: node },
+              {
+                nodes: node,
+              },
             ),
           );
         }
@@ -47,6 +52,7 @@ export function FieldsOnCorrectTypeRule(context) {
     },
   };
 }
+
 /**
  * Go through all of the implementations of type, as well as the interfaces that
  * they implement. If any of those types include the provided field, suggest them,
@@ -60,20 +66,26 @@ function getSuggestedTypeNames(schema, type, fieldName) {
   const suggestedTypes = new Set();
   const usageCount = Object.create(null);
   for (const possibleType of schema.getPossibleTypes(type)) {
-    if (possibleType.getFields()[fieldName] == null) {
+    if (!possibleType.getFields()[fieldName]) {
       continue;
     }
+
     // This object type defines this field.
     suggestedTypes.add(possibleType);
     usageCount[possibleType.name] = 1;
     for (const possibleInterface of possibleType.getInterfaces()) {
-      if (possibleInterface.getFields()[fieldName] == null) {
+      var _usageCount$possibleI;
+      if (!possibleInterface.getFields()[fieldName]) {
         continue;
       }
+
       // This interface type defines this field.
       suggestedTypes.add(possibleInterface);
       usageCount[possibleInterface.name] =
-        (usageCount[possibleInterface.name] ?? 0) + 1;
+        ((_usageCount$possibleI = usageCount[possibleInterface.name]) !==
+          null && _usageCount$possibleI !== void 0
+          ? _usageCount$possibleI
+          : 0) + 1;
     }
   }
   return [...suggestedTypes]
@@ -83,6 +95,7 @@ function getSuggestedTypeNames(schema, type, fieldName) {
       if (usageCountDiff !== 0) {
         return usageCountDiff;
       }
+
       // Suggest super types first followed by subtypes
       if (isInterfaceType(typeA) && schema.isSubType(typeA, typeB)) {
         return -1;
@@ -94,6 +107,7 @@ function getSuggestedTypeNames(schema, type, fieldName) {
     })
     .map((x) => x.name);
 }
+
 /**
  * For the field name provided, determine if there are any similar field names
  * that may be the result of a typo.

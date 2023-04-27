@@ -9,6 +9,7 @@ export { print } from './printer.mjs';
 export {
   visit,
   visitInParallel,
+  getVisitFn,
   getEnterLeaveForKind,
   BREAK,
 } from './visitor.mjs';
@@ -17,7 +18,6 @@ export {
   isDefinitionNode,
   isExecutableDefinitionNode,
   isSelectionNode,
-  isNullabilityAssertionNode,
   isValueNode,
   isConstValueNode,
   isTypeNode,

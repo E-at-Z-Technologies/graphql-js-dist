@@ -8,6 +8,7 @@ export function printLocation(location) {
     getLocation(location.source, location.start),
   );
 }
+
 /**
  * Render a helpful description of the location in the GraphQL Source document.
  */
@@ -22,6 +23,7 @@ export function printSourceLocation(source, sourceLocation) {
   const locationStr = `${source.name}:${lineNum}:${columnNum}\n`;
   const lines = body.split(/\r\n|[\n\r]/g);
   const locationLine = lines[lineIndex];
+
   // Special case for minified documents
   if (locationLine.length > 120) {
     const subLineIndex = Math.floor(columnNum / 80);

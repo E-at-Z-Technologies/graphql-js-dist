@@ -1,4 +1,5 @@
 import { devAssert } from '../jsutils/devAssert.mjs';
+import { inspect } from '../jsutils/inspect.mjs';
 import { instanceOf } from '../jsutils/instanceOf.mjs';
 /**
  * A representation of source input to GraphQL. The `name` and `locationOffset` parameters are
@@ -11,8 +12,13 @@ export class Source {
   constructor(
     body,
     name = 'GraphQL request',
-    locationOffset = { line: 1, column: 1 },
+    locationOffset = {
+      line: 1,
+      column: 1,
+    },
   ) {
+    typeof body === 'string' ||
+      devAssert(false, `Body must be a string. Received: ${inspect(body)}.`);
     this.body = body;
     this.name = name;
     this.locationOffset = locationOffset;
@@ -31,6 +37,7 @@ export class Source {
     return 'Source';
   }
 }
+
 /**
  * Test if the given value is a Source object.
  *

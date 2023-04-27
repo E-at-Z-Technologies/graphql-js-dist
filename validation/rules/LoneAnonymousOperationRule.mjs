@@ -21,7 +21,9 @@ export function LoneAnonymousOperationRule(context) {
         context.reportError(
           new GraphQLError(
             'This anonymous operation must be the only defined operation.',
-            { nodes: node },
+            {
+              nodes: node,
+            },
           ),
         );
       }

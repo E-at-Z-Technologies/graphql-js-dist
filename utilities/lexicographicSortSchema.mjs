@@ -22,6 +22,7 @@ import {
 import { GraphQLDirective } from '../type/directives.mjs';
 import { isIntrospectionType } from '../type/introspection.mjs';
 import { GraphQLSchema } from '../type/schema.mjs';
+
 /**
  * Sort GraphQLSchema.
  *

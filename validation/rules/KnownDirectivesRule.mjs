@@ -14,39 +14,40 @@ import { specifiedDirectives } from '../../type/directives.mjs';
  * See https://spec.graphql.org/draft/#sec-Directives-Are-Defined
  */
 export function KnownDirectivesRule(context) {
-  const locationsMap = new Map();
+  const locationsMap = Object.create(null);
   const schema = context.getSchema();
   const definedDirectives = schema
     ? schema.getDirectives()
     : specifiedDirectives;
   for (const directive of definedDirectives) {
-    locationsMap.set(directive.name, directive.locations);
+    locationsMap[directive.name] = directive.locations;
   }
   const astDefinitions = context.getDocument().definitions;
   for (const def of astDefinitions) {
     if (def.kind === Kind.DIRECTIVE_DEFINITION) {
-      locationsMap.set(
-        def.name.value,
-        def.locations.map((name) => name.value),
-      );
+      locationsMap[def.name.value] = def.locations.map((name) => name.value);
     }
   }
   return {
     Directive(node, _key, _parent, _path, ancestors) {
       const name = node.name.value;
-      const locations = locationsMap.get(name);
-      if (locations == null) {
+      const locations = locationsMap[name];
+      if (!locations) {
         context.reportError(
-          new GraphQLError(`Unknown directive "@${name}".`, { nodes: node }),
+          new GraphQLError(`Unknown directive "@${name}".`, {
+            nodes: node,
+          }),
         );
         return;
       }
       const candidateLocation = getDirectiveLocationForASTPath(ancestors);
-      if (candidateLocation != null && !locations.includes(candidateLocation)) {
+      if (candidateLocation && !locations.includes(candidateLocation)) {
         context.reportError(
           new GraphQLError(
             `Directive "@${name}" may not be used on ${candidateLocation}.`,
-            { nodes: node },
+            {
+              nodes: node,
+            },
           ),
         );
       }
@@ -54,8 +55,8 @@ export function KnownDirectivesRule(context) {
   };
 }
 function getDirectiveLocationForASTPath(ancestors) {
-  const appliedTo = ancestors.at(-1);
-  (appliedTo != null && 'kind' in appliedTo) || invariant(false);
+  const appliedTo = ancestors[ancestors.length - 1];
+  'kind' in appliedTo || invariant(false);
   switch (appliedTo.kind) {
     case Kind.OPERATION_DEFINITION:
       return getDirectiveLocationForOperation(appliedTo.operation);
@@ -95,14 +96,14 @@ function getDirectiveLocationForASTPath(ancestors) {
     case Kind.INPUT_OBJECT_TYPE_EXTENSION:
       return DirectiveLocation.INPUT_OBJECT;
     case Kind.INPUT_VALUE_DEFINITION: {
-      const parentNode = ancestors.at(-3);
-      (parentNode != null && 'kind' in parentNode) || invariant(false);
+      const parentNode = ancestors[ancestors.length - 3];
+      'kind' in parentNode || invariant(false);
       return parentNode.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION
         ? DirectiveLocation.INPUT_FIELD_DEFINITION
         : DirectiveLocation.ARGUMENT_DEFINITION;
     }
     // Not reachable, all possible types have been considered.
-    /* c8 ignore next 2 */
+    /* c8 ignore next */
     default:
       false || invariant(false, 'Unexpected kind: ' + inspect(appliedTo.kind));
   }

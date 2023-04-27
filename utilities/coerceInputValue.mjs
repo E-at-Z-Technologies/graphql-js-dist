@@ -91,9 +91,10 @@ function coerceInputValueImpl(inputValue, type, onError, path) {
         addPath(path, field.name, type.name),
       );
     }
+
     // Ensure every provided field is defined.
     for (const fieldName of Object.keys(inputValue)) {
-      if (fieldDefs[fieldName] == null) {
+      if (!fieldDefs[fieldName]) {
         const suggestions = suggestionList(
           fieldName,
           Object.keys(type.getFields()),
@@ -112,7 +113,8 @@ function coerceInputValueImpl(inputValue, type, onError, path) {
   }
   if (isLeafType(type)) {
     let parseResult;
-    // Scalars and Enums determine if an input value is valid via parseValue(),
+
+    // Scalars and Enums determine if a input value is valid via parseValue(),
     // which can throw to indicate failure. If it throws, maintain a reference
     // to the original error.
     try {

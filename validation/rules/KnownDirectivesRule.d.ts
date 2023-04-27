@@ -1,8 +1,8 @@
-import type { ASTVisitor } from '../../language/visitor.js';
+import type { ASTVisitor } from '../../language/visitor';
 import type {
   SDLValidationContext,
   ValidationContext,
-} from '../ValidationContext.js';
+} from '../ValidationContext';
 /**
  * Known directives
  *

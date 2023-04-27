@@ -1,40 +1,49 @@
 'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.UniqueDirectiveNamesRule = void 0;
-const GraphQLError_js_1 = require('../../error/GraphQLError.js');
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.UniqueDirectiveNamesRule = UniqueDirectiveNamesRule;
+var _GraphQLError = require('../../error/GraphQLError.js');
 /**
  * Unique directive names
  *
  * A GraphQL document is only valid if all defined directives have unique names.
  */
 function UniqueDirectiveNamesRule(context) {
-  const knownDirectiveNames = new Map();
+  const knownDirectiveNames = Object.create(null);
   const schema = context.getSchema();
   return {
     DirectiveDefinition(node) {
       const directiveName = node.name.value;
-      if (schema?.getDirective(directiveName)) {
+      if (
+        schema !== null &&
+        schema !== void 0 &&
+        schema.getDirective(directiveName)
+      ) {
         context.reportError(
-          new GraphQLError_js_1.GraphQLError(
+          new _GraphQLError.GraphQLError(
             `Directive "@${directiveName}" already exists in the schema. It cannot be redefined.`,
-            { nodes: node.name },
+            {
+              nodes: node.name,
+            },
           ),
         );
         return;
       }
-      const knownName = knownDirectiveNames.get(directiveName);
-      if (knownName) {
+      if (knownDirectiveNames[directiveName]) {
         context.reportError(
-          new GraphQLError_js_1.GraphQLError(
+          new _GraphQLError.GraphQLError(
             `There can be only one directive named "@${directiveName}".`,
-            { nodes: [knownName, node.name] },
+            {
+              nodes: [knownDirectiveNames[directiveName], node.name],
+            },
           ),
         );
       } else {
-        knownDirectiveNames.set(directiveName, node.name);
+        knownDirectiveNames[directiveName] = node.name;
       }
       return false;
     },
   };
 }
-exports.UniqueDirectiveNamesRule = UniqueDirectiveNamesRule;

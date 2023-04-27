@@ -1,7 +1,10 @@
 'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.concatAST = void 0;
-const kinds_js_1 = require('../language/kinds.js');
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.concatAST = concatAST;
+var _kinds = require('../language/kinds.js');
 /**
  * Provided a collection of ASTs, presumably each from different files,
  * concatenate the ASTs together into batched AST, useful for validating many
@@ -12,6 +15,8 @@ function concatAST(documents) {
   for (const doc of documents) {
     definitions.push(...doc.definitions);
   }
-  return { kind: kinds_js_1.Kind.DOCUMENT, definitions };
+  return {
+    kind: _kinds.Kind.DOCUMENT,
+    definitions,
+  };
 }
-exports.concatAST = concatAST;

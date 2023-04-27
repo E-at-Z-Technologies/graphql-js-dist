@@ -95,7 +95,7 @@ export const __Directive = new GraphQLObjectType({
         },
       },
       resolve(field, { includeDeprecated }) {
-        return includeDeprecated === true
+        return includeDeprecated
           ? field.args
           : field.args.filter((arg) => arg.deprecationReason == null);
       },
@@ -241,12 +241,15 @@ export const __Type = new GraphQLObjectType({
     fields: {
       type: new GraphQLList(new GraphQLNonNull(__Field)),
       args: {
-        includeDeprecated: { type: GraphQLBoolean, defaultValue: false },
+        includeDeprecated: {
+          type: GraphQLBoolean,
+          defaultValue: false,
+        },
       },
       resolve(type, { includeDeprecated }) {
         if (isObjectType(type) || isInterfaceType(type)) {
           const fields = Object.values(type.getFields());
-          return includeDeprecated === true
+          return includeDeprecated
             ? fields
             : fields.filter((field) => field.deprecationReason == null);
         }
@@ -271,12 +274,15 @@ export const __Type = new GraphQLObjectType({
     enumValues: {
       type: new GraphQLList(new GraphQLNonNull(__EnumValue)),
       args: {
-        includeDeprecated: { type: GraphQLBoolean, defaultValue: false },
+        includeDeprecated: {
+          type: GraphQLBoolean,
+          defaultValue: false,
+        },
       },
       resolve(type, { includeDeprecated }) {
         if (isEnumType(type)) {
           const values = type.getValues();
-          return includeDeprecated === true
+          return includeDeprecated
             ? values
             : values.filter((field) => field.deprecationReason == null);
         }
@@ -293,7 +299,7 @@ export const __Type = new GraphQLObjectType({
       resolve(type, { includeDeprecated }) {
         if (isInputObjectType(type)) {
           const values = Object.values(type.getFields());
-          return includeDeprecated === true
+          return includeDeprecated
             ? values
             : values.filter((field) => field.deprecationReason == null);
         }
@@ -329,7 +335,7 @@ export const __Field = new GraphQLObjectType({
         },
       },
       resolve(field, { includeDeprecated }) {
-        return includeDeprecated === true
+        return includeDeprecated
           ? field.args
           : field.args.filter((arg) => arg.deprecationReason == null);
       },
@@ -408,7 +414,7 @@ export const __EnumValue = new GraphQLObjectType({
     },
   }),
 });
-export var TypeKind;
+var TypeKind;
 (function (TypeKind) {
   TypeKind['SCALAR'] = 'SCALAR';
   TypeKind['OBJECT'] = 'OBJECT';
@@ -419,6 +425,7 @@ export var TypeKind;
   TypeKind['LIST'] = 'LIST';
   TypeKind['NON_NULL'] = 'NON_NULL';
 })(TypeKind || (TypeKind = {}));
+export { TypeKind };
 export const __TypeKind = new GraphQLEnumType({
   name: '__TypeKind',
   description: 'An enum describing what kind of type a given `__Type` is.',
@@ -463,10 +470,12 @@ export const __TypeKind = new GraphQLEnumType({
     },
   },
 });
+
 /**
  * Note that these are GraphQLField and not GraphQLFieldConfig,
  * so the format for args is different.
  */
+
 export const SchemaMetaFieldDef = {
   name: '__schema',
   type: new GraphQLNonNull(__Schema),

@@ -1,40 +1,39 @@
 'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.printDirective =
-  exports.printType =
-  exports.printIntrospectionSchema =
-  exports.printSchema =
-    void 0;
-const inspect_js_1 = require('../jsutils/inspect.js');
-const invariant_js_1 = require('../jsutils/invariant.js');
-const blockString_js_1 = require('../language/blockString.js');
-const kinds_js_1 = require('../language/kinds.js');
-const printer_js_1 = require('../language/printer.js');
-const definition_js_1 = require('../type/definition.js');
-const directives_js_1 = require('../type/directives.js');
-const introspection_js_1 = require('../type/introspection.js');
-const scalars_js_1 = require('../type/scalars.js');
-const astFromValue_js_1 = require('./astFromValue.js');
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.printIntrospectionSchema = printIntrospectionSchema;
+exports.printSchema = printSchema;
+exports.printType = printType;
+var _inspect = require('../jsutils/inspect.js');
+var _invariant = require('../jsutils/invariant.js');
+var _blockString = require('../language/blockString.js');
+var _kinds = require('../language/kinds.js');
+var _printer = require('../language/printer.js');
+var _definition = require('../type/definition.js');
+var _directives = require('../type/directives.js');
+var _introspection = require('../type/introspection.js');
+var _scalars = require('../type/scalars.js');
+var _astFromValue = require('./astFromValue.js');
 function printSchema(schema) {
   return printFilteredSchema(
     schema,
-    (n) => !(0, directives_js_1.isSpecifiedDirective)(n),
+    (n) => !(0, _directives.isSpecifiedDirective)(n),
     isDefinedType,
   );
 }
-exports.printSchema = printSchema;
 function printIntrospectionSchema(schema) {
   return printFilteredSchema(
     schema,
-    directives_js_1.isSpecifiedDirective,
-    introspection_js_1.isIntrospectionType,
+    _directives.isSpecifiedDirective,
+    _introspection.isIntrospectionType,
   );
 }
-exports.printIntrospectionSchema = printIntrospectionSchema;
 function isDefinedType(type) {
   return (
-    !(0, scalars_js_1.isSpecifiedScalarType)(type) &&
-    !(0, introspection_js_1.isIntrospectionType)(type)
+    !(0, _scalars.isSpecifiedScalarType)(type) &&
+    !(0, _introspection.isIntrospectionType)(type)
   );
 }
 function printFilteredSchema(schema, directiveFilter, typeFilter) {
@@ -49,27 +48,25 @@ function printFilteredSchema(schema, directiveFilter, typeFilter) {
     .join('\n\n');
 }
 function printSchemaDefinition(schema) {
-  const queryType = schema.getQueryType();
-  const mutationType = schema.getMutationType();
-  const subscriptionType = schema.getSubscriptionType();
-  // Special case: When a schema has no root operation types, no valid schema
-  // definition can be printed.
-  if (!queryType && !mutationType && !subscriptionType) {
+  if (schema.description == null && isSchemaOfCommonNames(schema)) {
     return;
   }
-  // Only print a schema definition if there is a description or if it should
-  // not be omitted because of having default type names.
-  if (schema.description != null || !hasDefaultRootOperationTypes(schema)) {
-    return (
-      printDescription(schema) +
-      'schema {\n' +
-      (queryType ? `  query: ${queryType.name}\n` : '') +
-      (mutationType ? `  mutation: ${mutationType.name}\n` : '') +
-      (subscriptionType ? `  subscription: ${subscriptionType.name}\n` : '') +
-      '}'
-    );
+  const operationTypes = [];
+  const queryType = schema.getQueryType();
+  if (queryType) {
+    operationTypes.push(`  query: ${queryType.name}`);
   }
+  const mutationType = schema.getMutationType();
+  if (mutationType) {
+    operationTypes.push(`  mutation: ${mutationType.name}`);
+  }
+  const subscriptionType = schema.getSubscriptionType();
+  if (subscriptionType) {
+    operationTypes.push(`  subscription: ${subscriptionType.name}`);
+  }
+  return printDescription(schema) + `schema {\n${operationTypes.join('\n')}\n}`;
 }
+
 /**
  * GraphQL schema define root types for each type of operation. These types are
  * the same as any other type and can be named in any manner, however there is
@@ -83,49 +80,50 @@ function printSchemaDefinition(schema) {
  *   }
  * ```
  *
- * When using this naming convention, the schema description can be omitted so
- * long as these names are only used for operation types.
- *
- * Note however that if any of these default names are used elsewhere in the
- * schema but not as a root operation type, the schema definition must still
- * be printed to avoid ambiguity.
+ * When using this naming convention, the schema description can be omitted.
  */
-function hasDefaultRootOperationTypes(schema) {
-  /* eslint-disable eqeqeq */
-  return (
-    schema.getQueryType() == schema.getType('Query') &&
-    schema.getMutationType() == schema.getType('Mutation') &&
-    schema.getSubscriptionType() == schema.getType('Subscription')
-  );
+function isSchemaOfCommonNames(schema) {
+  const queryType = schema.getQueryType();
+  if (queryType && queryType.name !== 'Query') {
+    return false;
+  }
+  const mutationType = schema.getMutationType();
+  if (mutationType && mutationType.name !== 'Mutation') {
+    return false;
+  }
+  const subscriptionType = schema.getSubscriptionType();
+  if (subscriptionType && subscriptionType.name !== 'Subscription') {
+    return false;
+  }
+  return true;
 }
 function printType(type) {
-  if ((0, definition_js_1.isScalarType)(type)) {
+  if ((0, _definition.isScalarType)(type)) {
     return printScalar(type);
   }
-  if ((0, definition_js_1.isObjectType)(type)) {
+  if ((0, _definition.isObjectType)(type)) {
     return printObject(type);
   }
-  if ((0, definition_js_1.isInterfaceType)(type)) {
+  if ((0, _definition.isInterfaceType)(type)) {
     return printInterface(type);
   }
-  if ((0, definition_js_1.isUnionType)(type)) {
+  if ((0, _definition.isUnionType)(type)) {
     return printUnion(type);
   }
-  if ((0, definition_js_1.isEnumType)(type)) {
+  if ((0, _definition.isEnumType)(type)) {
     return printEnum(type);
   }
-  if ((0, definition_js_1.isInputObjectType)(type)) {
+  if ((0, _definition.isInputObjectType)(type)) {
     return printInputObject(type);
   }
   /* c8 ignore next 3 */
   // Not reachable, all possible types have been considered.
   false ||
-    (0, invariant_js_1.invariant)(
+    (0, _invariant.invariant)(
       false,
-      'Unexpected type: ' + (0, inspect_js_1.inspect)(type),
+      'Unexpected type: ' + (0, _inspect.inspect)(type),
     );
 }
-exports.printType = printType;
 function printScalar(type) {
   return (
     printDescription(type) + `scalar ${type.name}` + printSpecifiedByURL(type)
@@ -196,8 +194,9 @@ function printArgs(args, indentation = '') {
   if (args.length === 0) {
     return '';
   }
+
   // If every arg does not have a description, print them on one line.
-  if (args.every((arg) => arg.description == null)) {
+  if (args.every((arg) => !arg.description)) {
     return '(' + args.map(printInputValue).join(', ') + ')';
   }
   return (
@@ -217,13 +216,13 @@ function printArgs(args, indentation = '') {
   );
 }
 function printInputValue(arg) {
-  const defaultAST = (0, astFromValue_js_1.astFromValue)(
+  const defaultAST = (0, _astFromValue.astFromValue)(
     arg.defaultValue,
     arg.type,
   );
   let argDecl = arg.name + ': ' + String(arg.type);
   if (defaultAST) {
-    argDecl += ` = ${(0, printer_js_1.print)(defaultAST)}`;
+    argDecl += ` = ${(0, _printer.print)(defaultAST)}`;
   }
   return argDecl + printDeprecated(arg.deprecationReason);
 }
@@ -238,14 +237,13 @@ function printDirective(directive) {
     directive.locations.join(' | ')
   );
 }
-exports.printDirective = printDirective;
 function printDeprecated(reason) {
   if (reason == null) {
     return '';
   }
-  if (reason !== directives_js_1.DEFAULT_DEPRECATION_REASON) {
-    const astValue = (0, printer_js_1.print)({
-      kind: kinds_js_1.Kind.STRING,
+  if (reason !== _directives.DEFAULT_DEPRECATION_REASON) {
+    const astValue = (0, _printer.print)({
+      kind: _kinds.Kind.STRING,
       value: reason,
     });
     return ` @deprecated(reason: ${astValue})`;
@@ -256,8 +254,8 @@ function printSpecifiedByURL(scalar) {
   if (scalar.specifiedByURL == null) {
     return '';
   }
-  const astValue = (0, printer_js_1.print)({
-    kind: kinds_js_1.Kind.STRING,
+  const astValue = (0, _printer.print)({
+    kind: _kinds.Kind.STRING,
     value: scalar.specifiedByURL,
   });
   return ` @specifiedBy(url: ${astValue})`;
@@ -267,12 +265,12 @@ function printDescription(def, indentation = '', firstInBlock = true) {
   if (description == null) {
     return '';
   }
-  const blockString = (0, printer_js_1.print)({
-    kind: kinds_js_1.Kind.STRING,
+  const blockString = (0, _printer.print)({
+    kind: _kinds.Kind.STRING,
     value: description,
-    block: (0, blockString_js_1.isPrintableAsBlockString)(description),
+    block: (0, _blockString.isPrintableAsBlockString)(description),
   });
   const prefix =
     indentation && !firstInBlock ? '\n' + indentation : indentation;
-  return prefix + blockString.replaceAll('\n', '\n' + indentation) + '\n';
+  return prefix + blockString.replace(/\n/g, '\n' + indentation) + '\n';
 }

@@ -1,5 +1,5 @@
-import type { ASTVisitor } from '../../language/visitor.js';
-import type { ValidationContext } from '../ValidationContext.js';
+import type { ASTVisitor } from '../../language/visitor';
+import type { ValidationContext } from '../ValidationContext';
 /**
  * Scalar leafs
  *

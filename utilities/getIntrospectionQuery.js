@@ -1,6 +1,9 @@
 'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.getIntrospectionQuery = void 0;
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.getIntrospectionQuery = getIntrospectionQuery;
 /**
  * Produce the GraphQL query recommended for a full schema introspection.
  * Accepts optional IntrospectionOptions.
@@ -126,4 +129,3 @@ function getIntrospectionQuery(options) {
     }
   `;
 }
-exports.getIntrospectionQuery = getIntrospectionQuery;

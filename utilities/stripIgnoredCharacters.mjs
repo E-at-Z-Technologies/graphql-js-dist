@@ -2,6 +2,7 @@ import { printBlockString } from '../language/blockString.mjs';
 import { isPunctuatorTokenKind, Lexer } from '../language/lexer.mjs';
 import { isSource, Source } from '../language/source.mjs';
 import { TokenKind } from '../language/tokenKind.mjs';
+
 /**
  * Strips characters that are not significant to the validity or execution
  * of a GraphQL document:
@@ -71,6 +72,7 @@ export function stripIgnoredCharacters(source) {
   while (lexer.advance().kind !== TokenKind.EOF) {
     const currentToken = lexer.token;
     const tokenKind = currentToken.kind;
+
     /**
      * Every two non-punctuator tokens should have space between them.
      * Also prevent case of non-punctuator token following by spread resulting
@@ -84,7 +86,9 @@ export function stripIgnoredCharacters(source) {
     }
     const tokenBody = body.slice(currentToken.start, currentToken.end);
     if (tokenKind === TokenKind.BLOCK_STRING) {
-      strippedBody += printBlockString(currentToken.value, { minimize: true });
+      strippedBody += printBlockString(currentToken.value, {
+        minimize: true,
+      });
     } else {
       strippedBody += tokenBody;
     }

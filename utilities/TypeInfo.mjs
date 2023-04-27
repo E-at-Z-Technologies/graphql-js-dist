@@ -8,11 +8,18 @@ import {
   isEnumType,
   isInputObjectType,
   isInputType,
+  isInterfaceType,
   isListType,
   isObjectType,
   isOutputType,
 } from '../type/definition.mjs';
+import {
+  SchemaMetaFieldDef,
+  TypeMetaFieldDef,
+  TypeNameMetaFieldDef,
+} from '../type/introspection.mjs';
 import { typeFromAST } from './typeFromAST.mjs';
+
 /**
  * TypeInfo is a utility class which, given a GraphQL schema, can keep track
  * of the current field and type definitions at any point in a GraphQL document
@@ -25,8 +32,7 @@ export class TypeInfo {
      * Initial type may be provided in rare cases to facilitate traversals
      *  beginning somewhere other than documents.
      */
-    initialType,
-    /** @deprecated will be removed in 17.0.0 */
+    initialType /** @deprecated will be removed in 17.0.0 */,
     getFieldDefFn,
   ) {
     this._schema = schema;
@@ -38,7 +44,10 @@ export class TypeInfo {
     this._directive = null;
     this._argument = null;
     this._enumValue = null;
-    this._getFieldDef = getFieldDefFn ?? getFieldDef;
+    this._getFieldDef =
+      getFieldDefFn !== null && getFieldDefFn !== void 0
+        ? getFieldDefFn
+        : getFieldDef;
     if (initialType) {
       if (isInputType(initialType)) {
         this._inputTypeStack.push(initialType);
@@ -55,22 +64,34 @@ export class TypeInfo {
     return 'TypeInfo';
   }
   getType() {
-    return this._typeStack.at(-1);
+    if (this._typeStack.length > 0) {
+      return this._typeStack[this._typeStack.length - 1];
+    }
   }
   getParentType() {
-    return this._parentTypeStack.at(-1);
+    if (this._parentTypeStack.length > 0) {
+      return this._parentTypeStack[this._parentTypeStack.length - 1];
+    }
   }
   getInputType() {
-    return this._inputTypeStack.at(-1);
+    if (this._inputTypeStack.length > 0) {
+      return this._inputTypeStack[this._inputTypeStack.length - 1];
+    }
   }
   getParentInputType() {
-    return this._inputTypeStack.at(-2);
+    if (this._inputTypeStack.length > 1) {
+      return this._inputTypeStack[this._inputTypeStack.length - 2];
+    }
   }
   getFieldDef() {
-    return this._fieldDefStack.at(-1);
+    if (this._fieldDefStack.length > 0) {
+      return this._fieldDefStack[this._fieldDefStack.length - 1];
+    }
   }
   getDefaultValue() {
-    return this._defaultValueStack.at(-1);
+    if (this._defaultValueStack.length > 0) {
+      return this._defaultValueStack[this._defaultValueStack.length - 1];
+    }
   }
   getDirective() {
     return this._directive;
@@ -134,9 +155,14 @@ export class TypeInfo {
         break;
       }
       case Kind.ARGUMENT: {
+        var _this$getDirective;
         let argDef;
         let argType;
-        const fieldOrDirective = this.getDirective() ?? this.getFieldDef();
+        const fieldOrDirective =
+          (_this$getDirective = this.getDirective()) !== null &&
+          _this$getDirective !== void 0
+            ? _this$getDirective
+            : this.getFieldDef();
         if (fieldOrDirective) {
           argDef = fieldOrDirective.args.find(
             (arg) => arg.name === node.name.value,
@@ -164,7 +190,7 @@ export class TypeInfo {
         let inputField;
         if (isInputObjectType(objectType)) {
           inputField = objectType.getFields()[node.name.value];
-          if (inputField != null) {
+          if (inputField) {
             inputFieldType = inputField.type;
           }
         }
@@ -189,6 +215,7 @@ export class TypeInfo {
       // Ignore other nodes
     }
   }
+
   leave(node) {
     switch (node.kind) {
       case Kind.SELECTION_SET:
@@ -227,9 +254,31 @@ export class TypeInfo {
     }
   }
 }
+
+/**
+ * Not exactly the same as the executor's definition of getFieldDef, in this
+ * statically evaluated environment we do not always have an Object type,
+ * and need to handle Interface and Union types.
+ */
 function getFieldDef(schema, parentType, fieldNode) {
-  return schema.getField(parentType, fieldNode.name.value);
+  const name = fieldNode.name.value;
+  if (
+    name === SchemaMetaFieldDef.name &&
+    schema.getQueryType() === parentType
+  ) {
+    return SchemaMetaFieldDef;
+  }
+  if (name === TypeMetaFieldDef.name && schema.getQueryType() === parentType) {
+    return TypeMetaFieldDef;
+  }
+  if (name === TypeNameMetaFieldDef.name && isCompositeType(parentType)) {
+    return TypeNameMetaFieldDef;
+  }
+  if (isObjectType(parentType) || isInterfaceType(parentType)) {
+    return parentType.getFields()[name];
+  }
 }
+
 /**
  * Creates a new visitor instance which maintains a provided TypeInfo instance
  * along with visiting visitor.

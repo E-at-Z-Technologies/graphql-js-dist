@@ -1,4 +1,4 @@
-import { GraphQLSchema } from '../type/schema.js';
+import { GraphQLSchema } from '../type/schema';
 /**
  * Sort GraphQLSchema.
  *

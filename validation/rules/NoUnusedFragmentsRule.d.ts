@@ -1,5 +1,5 @@
-import type { ASTVisitor } from '../../language/visitor.js';
-import type { ASTValidationContext } from '../ValidationContext.js';
+import type { ASTVisitor } from '../../language/visitor';
+import type { ASTValidationContext } from '../ValidationContext';
 /**
  * No unused fragments
  *

@@ -1,5 +1,6 @@
 export function devAssert(condition, message) {
-  if (!condition) {
+  const booleanCondition = Boolean(condition);
+  if (!booleanCondition) {
     throw new Error(message);
   }
 }

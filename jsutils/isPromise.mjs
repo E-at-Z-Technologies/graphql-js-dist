@@ -3,5 +3,8 @@
  * otherwise returns false.
  */
 export function isPromise(value) {
-  return typeof value?.then === 'function';
+  return (
+    typeof (value === null || value === void 0 ? void 0 : value.then) ===
+    'function'
+  );
 }

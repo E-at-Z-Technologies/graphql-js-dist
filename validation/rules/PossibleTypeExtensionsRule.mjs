@@ -20,10 +20,10 @@ import {
  */
 export function PossibleTypeExtensionsRule(context) {
   const schema = context.getSchema();
-  const definedTypes = new Map();
+  const definedTypes = Object.create(null);
   for (const def of context.getDocument().definitions) {
     if (isTypeDefinitionNode(def)) {
-      definedTypes.set(def.name.value, def);
+      definedTypes[def.name.value] = def;
     }
   }
   return {
@@ -36,15 +36,16 @@ export function PossibleTypeExtensionsRule(context) {
   };
   function checkExtension(node) {
     const typeName = node.name.value;
-    const defNode = definedTypes.get(typeName);
-    const existingType = schema?.getType(typeName);
+    const defNode = definedTypes[typeName];
+    const existingType =
+      schema === null || schema === void 0 ? void 0 : schema.getType(typeName);
     let expectedKind;
-    if (defNode != null) {
+    if (defNode) {
       expectedKind = defKindToExtKind[defNode.kind];
     } else if (existingType) {
       expectedKind = typeToExtKind(existingType);
     }
-    if (expectedKind != null) {
+    if (expectedKind) {
       if (expectedKind !== node.kind) {
         const kindStr = extensionKindToTypeName(node.kind);
         context.reportError(
@@ -54,16 +55,20 @@ export function PossibleTypeExtensionsRule(context) {
         );
       }
     } else {
-      const allTypeNames = [
-        ...definedTypes.keys(),
-        ...Object.keys(schema?.getTypeMap() ?? {}),
-      ];
+      const allTypeNames = Object.keys({
+        ...definedTypes,
+        ...(schema === null || schema === void 0
+          ? void 0
+          : schema.getTypeMap()),
+      });
       const suggestedTypes = suggestionList(typeName, allTypeNames);
       context.reportError(
         new GraphQLError(
           `Cannot extend type "${typeName}" because it is not defined.` +
             didYouMean(suggestedTypes),
-          { nodes: node.name },
+          {
+            nodes: node.name,
+          },
         ),
       );
     }
@@ -115,7 +120,7 @@ function extensionKindToTypeName(kind) {
     case Kind.INPUT_OBJECT_TYPE_EXTENSION:
       return 'input object';
     // Not reachable. All possible types have been considered
-    /* c8 ignore next 2 */
+    /* c8 ignore next */
     default:
       false || invariant(false, 'Unexpected kind: ' + inspect(kind));
   }

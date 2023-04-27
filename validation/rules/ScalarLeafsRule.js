@@ -1,9 +1,12 @@
 'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-exports.ScalarLeafsRule = void 0;
-const inspect_js_1 = require('../../jsutils/inspect.js');
-const GraphQLError_js_1 = require('../../error/GraphQLError.js');
-const definition_js_1 = require('../../type/definition.js');
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
+exports.ScalarLeafsRule = ScalarLeafsRule;
+var _inspect = require('../../jsutils/inspect.js');
+var _GraphQLError = require('../../error/GraphQLError.js');
+var _definition = require('../../type/definition.js');
 /**
  * Scalar leafs
  *
@@ -16,28 +19,28 @@ function ScalarLeafsRule(context) {
       const type = context.getType();
       const selectionSet = node.selectionSet;
       if (type) {
-        if (
-          (0, definition_js_1.isLeafType)(
-            (0, definition_js_1.getNamedType)(type),
-          )
-        ) {
+        if ((0, _definition.isLeafType)((0, _definition.getNamedType)(type))) {
           if (selectionSet) {
             const fieldName = node.name.value;
-            const typeStr = (0, inspect_js_1.inspect)(type);
+            const typeStr = (0, _inspect.inspect)(type);
             context.reportError(
-              new GraphQLError_js_1.GraphQLError(
+              new _GraphQLError.GraphQLError(
                 `Field "${fieldName}" must not have a selection since type "${typeStr}" has no subfields.`,
-                { nodes: selectionSet },
+                {
+                  nodes: selectionSet,
+                },
               ),
             );
           }
         } else if (!selectionSet) {
           const fieldName = node.name.value;
-          const typeStr = (0, inspect_js_1.inspect)(type);
+          const typeStr = (0, _inspect.inspect)(type);
           context.reportError(
-            new GraphQLError_js_1.GraphQLError(
+            new _GraphQLError.GraphQLError(
               `Field "${fieldName}" of type "${typeStr}" must have a selection of subfields. Did you mean "${fieldName} { ... }"?`,
-              { nodes: node },
+              {
+                nodes: node,
+              },
             ),
           );
         }
@@ -45,4 +48,3 @@ function ScalarLeafsRule(context) {
     },
   };
 }
-exports.ScalarLeafsRule = ScalarLeafsRule;

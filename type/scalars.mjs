@@ -4,11 +4,13 @@ import { GraphQLError } from '../error/GraphQLError.mjs';
 import { Kind } from '../language/kinds.mjs';
 import { print } from '../language/printer.mjs';
 import { GraphQLScalarType } from './definition.mjs';
+
 /**
  * Maximum possible Int value as per GraphQL Spec (32-bit signed integer).
  * n.b. This differs from JavaScript's numbers that are IEEE 754 doubles safe up-to 2^53 - 1
  * */
 export const GRAPHQL_MAX_INT = 2147483647;
+
 /**
  * Minimum possible Int value as per GraphQL Spec (32-bit signed integer).
  * n.b. This differs from JavaScript's numbers that are IEEE 754 doubles safe starting at -(2^53 - 1)
@@ -57,14 +59,18 @@ export const GraphQLInt = new GraphQLScalarType({
     if (valueNode.kind !== Kind.INT) {
       throw new GraphQLError(
         `Int cannot represent non-integer value: ${print(valueNode)}`,
-        { nodes: valueNode },
+        {
+          nodes: valueNode,
+        },
       );
     }
     const num = parseInt(valueNode.value, 10);
     if (num > GRAPHQL_MAX_INT || num < GRAPHQL_MIN_INT) {
       throw new GraphQLError(
         `Int cannot represent non 32-bit signed integer value: ${valueNode.value}`,
-        { nodes: valueNode },
+        {
+          nodes: valueNode,
+        },
       );
     }
     return num;
@@ -102,7 +108,7 @@ export const GraphQLFloat = new GraphQLScalarType({
     if (valueNode.kind !== Kind.FLOAT && valueNode.kind !== Kind.INT) {
       throw new GraphQLError(
         `Float cannot represent non numeric value: ${print(valueNode)}`,
-        { nodes: valueNode },
+        valueNode,
       );
     }
     return parseFloat(valueNode.value);
@@ -114,6 +120,7 @@ export const GraphQLString = new GraphQLScalarType({
     'The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.',
   serialize(outputValue) {
     const coercedValue = serializeObject(outputValue);
+
     // Serialize string, boolean and number values to a string, but do not
     // attempt to coerce object, function, symbol, or other types as strings.
     if (typeof coercedValue === 'string') {
@@ -141,7 +148,9 @@ export const GraphQLString = new GraphQLScalarType({
     if (valueNode.kind !== Kind.STRING) {
       throw new GraphQLError(
         `String cannot represent a non string value: ${print(valueNode)}`,
-        { nodes: valueNode },
+        {
+          nodes: valueNode,
+        },
       );
     }
     return valueNode.value;
@@ -174,7 +183,9 @@ export const GraphQLBoolean = new GraphQLScalarType({
     if (valueNode.kind !== Kind.BOOLEAN) {
       throw new GraphQLError(
         `Boolean cannot represent a non boolean value: ${print(valueNode)}`,
-        { nodes: valueNode },
+        {
+          nodes: valueNode,
+        },
       );
     }
     return valueNode.value;
@@ -210,7 +221,9 @@ export const GraphQLID = new GraphQLScalarType({
       throw new GraphQLError(
         'ID cannot represent a non-string and non-integer value: ' +
           print(valueNode),
-        { nodes: valueNode },
+        {
+          nodes: valueNode,
+        },
       );
     }
     return valueNode.value;
@@ -226,6 +239,7 @@ export const specifiedScalarTypes = Object.freeze([
 export function isSpecifiedScalarType(type) {
   return specifiedScalarTypes.some(({ name }) => type.name === name);
 }
+
 // Support serializing objects with custom valueOf() or toJSON() functions -
 // a common way to represent a complex value which can be represented as
 // a string (ex: MongoDB id objects).

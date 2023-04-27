@@ -18,7 +18,7 @@ import {
 import { isSpecifiedScalarType } from '../type/scalars.mjs';
 import { astFromValue } from './astFromValue.mjs';
 import { sortValueNode } from './sortValueNode.mjs';
-export var BreakingChangeType;
+var BreakingChangeType;
 (function (BreakingChangeType) {
   BreakingChangeType['TYPE_REMOVED'] = 'TYPE_REMOVED';
   BreakingChangeType['TYPE_CHANGED_KIND'] = 'TYPE_CHANGED_KIND';
@@ -42,7 +42,8 @@ export var BreakingChangeType;
   BreakingChangeType['DIRECTIVE_LOCATION_REMOVED'] =
     'DIRECTIVE_LOCATION_REMOVED';
 })(BreakingChangeType || (BreakingChangeType = {}));
-export var DangerousChangeType;
+export { BreakingChangeType };
+var DangerousChangeType;
 (function (DangerousChangeType) {
   DangerousChangeType['VALUE_ADDED_TO_ENUM'] = 'VALUE_ADDED_TO_ENUM';
   DangerousChangeType['TYPE_ADDED_TO_UNION'] = 'TYPE_ADDED_TO_UNION';
@@ -53,6 +54,7 @@ export var DangerousChangeType;
     'IMPLEMENTED_INTERFACE_ADDED';
   DangerousChangeType['ARG_DEFAULT_VALUE_CHANGE'] = 'ARG_DEFAULT_VALUE_CHANGE';
 })(DangerousChangeType || (DangerousChangeType = {}));
+export { DangerousChangeType };
 /**
  * Given two schemas, returns an Array containing descriptions of all the types
  * of breaking changes covered by the other functions down below.
@@ -63,6 +65,7 @@ export function findBreakingChanges(oldSchema, newSchema) {
     (change) => change.type in BreakingChangeType,
   );
 }
+
 /**
  * Given two schemas, returns an Array containing descriptions of all the types
  * of potentially dangerous changes covered by the other functions down below.
@@ -395,6 +398,7 @@ function isChangeSafeForInputObjectFieldOrFieldArg(oldType, newType) {
         isChangeSafeForInputObjectFieldOrFieldArg(oldType.ofType, newType))
     );
   }
+
   // if they're both named types, see if their names are equivalent
   return isNamedType(newType) && oldType.name === newType.name;
 }
@@ -445,5 +449,9 @@ function diff(oldArray, newArray) {
       added.push(newItem);
     }
   }
-  return { added, persisted, removed };
+  return {
+    added,
+    persisted,
+    removed,
+  };
 }

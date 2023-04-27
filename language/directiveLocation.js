@@ -1,12 +1,15 @@
 'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
+
+Object.defineProperty(exports, '__esModule', {
+  value: true,
+});
 exports.DirectiveLocation = void 0;
 /**
  * The set of allowed directive location values.
  */
 var DirectiveLocation;
+exports.DirectiveLocation = DirectiveLocation;
 (function (DirectiveLocation) {
-  /** Request Definitions */
   DirectiveLocation['QUERY'] = 'QUERY';
   DirectiveLocation['MUTATION'] = 'MUTATION';
   DirectiveLocation['SUBSCRIPTION'] = 'SUBSCRIPTION';
@@ -15,7 +18,6 @@ var DirectiveLocation;
   DirectiveLocation['FRAGMENT_SPREAD'] = 'FRAGMENT_SPREAD';
   DirectiveLocation['INLINE_FRAGMENT'] = 'INLINE_FRAGMENT';
   DirectiveLocation['VARIABLE_DEFINITION'] = 'VARIABLE_DEFINITION';
-  /** Type System Definitions */
   DirectiveLocation['SCHEMA'] = 'SCHEMA';
   DirectiveLocation['SCALAR'] = 'SCALAR';
   DirectiveLocation['OBJECT'] = 'OBJECT';
@@ -27,7 +29,9 @@ var DirectiveLocation;
   DirectiveLocation['ENUM_VALUE'] = 'ENUM_VALUE';
   DirectiveLocation['INPUT_OBJECT'] = 'INPUT_OBJECT';
   DirectiveLocation['INPUT_FIELD_DEFINITION'] = 'INPUT_FIELD_DEFINITION';
-})(
-  (DirectiveLocation =
-    exports.DirectiveLocation || (exports.DirectiveLocation = {})),
-);
+})(DirectiveLocation || (exports.DirectiveLocation = DirectiveLocation = {}));
+/**
+ * The enum type representing the directive location values.
+ *
+ * @deprecated Please use `DirectiveLocation`. Will be remove in v17.
+ */

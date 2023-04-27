@@ -1,14 +1,14 @@
-import type { Maybe } from '../jsutils/Maybe.js';
-import type { ObjMap } from '../jsutils/ObjMap.js';
-import { GraphQLError } from '../error/GraphQLError.js';
+import type { Maybe } from '../jsutils/Maybe';
+import type { ObjMap } from '../jsutils/ObjMap';
+import { GraphQLError } from '../error/GraphQLError';
 import type {
   DirectiveNode,
   FieldNode,
   VariableDefinitionNode,
-} from '../language/ast.js';
-import type { GraphQLField } from '../type/definition.js';
-import type { GraphQLDirective } from '../type/directives.js';
-import type { GraphQLSchema } from '../type/schema.js';
+} from '../language/ast';
+import type { GraphQLField } from '../type/definition';
+import type { GraphQLDirective } from '../type/directives';
+import type { GraphQLSchema } from '../type/schema';
 type CoercedVariableValues =
   | {
       errors: ReadonlyArray<GraphQLError>;
@@ -68,7 +68,7 @@ export declare function getArgumentValues(
 export declare function getDirectiveValues(
   directiveDef: GraphQLDirective,
   node: {
-    readonly directives?: ReadonlyArray<DirectiveNode> | undefined;
+    readonly directives?: ReadonlyArray<DirectiveNode>;
   },
   variableValues?: Maybe<ObjMap<unknown>>,
 ):

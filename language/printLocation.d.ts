@@ -1,6 +1,6 @@
-import type { Location } from './ast.js';
-import type { SourceLocation } from './location.js';
-import type { Source } from './source.js';
+import type { Location } from './ast';
+import type { SourceLocation } from './location';
+import type { Source } from './source';
 /**
  * Render a helpful description of the location in the GraphQL Source document.
  */
