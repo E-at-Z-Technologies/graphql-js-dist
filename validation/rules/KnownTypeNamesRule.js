@@ -1,73 +1,64 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.KnownTypeNamesRule = KnownTypeNamesRule;
-
-var _didYouMean = _interopRequireDefault(require("../../jsutils/didYouMean.js"));
-
-var _suggestionList = _interopRequireDefault(require("../../jsutils/suggestionList.js"));
-
-var _GraphQLError = require("../../error/GraphQLError.js");
-
-var _predicates = require("../../language/predicates.js");
-
-var _scalars = require("../../type/scalars.js");
-
-var _introspection = require("../../type/introspection.js");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.KnownTypeNamesRule = void 0;
+const didYouMean_js_1 = require('../../jsutils/didYouMean.js');
+const suggestionList_js_1 = require('../../jsutils/suggestionList.js');
+const GraphQLError_js_1 = require('../../error/GraphQLError.js');
+const predicates_js_1 = require('../../language/predicates.js');
+const introspection_js_1 = require('../../type/introspection.js');
+const scalars_js_1 = require('../../type/scalars.js');
 /**
  * Known type names
  *
  * A GraphQL document is only valid if referenced types (specifically
  * variable definitions and fragment conditions) are defined by the type schema.
+ *
+ * See https://spec.graphql.org/draft/#sec-Fragment-Spread-Type-Existence
  */
 function KnownTypeNamesRule(context) {
-  var schema = context.getSchema();
-  var existingTypesMap = schema ? schema.getTypeMap() : Object.create(null);
-  var definedTypes = Object.create(null);
-
-  for (var _i2 = 0, _context$getDocument$2 = context.getDocument().definitions; _i2 < _context$getDocument$2.length; _i2++) {
-    var def = _context$getDocument$2[_i2];
-
-    if ((0, _predicates.isTypeDefinitionNode)(def)) {
-      definedTypes[def.name.value] = true;
-    }
-  }
-
-  var typeNames = Object.keys(existingTypesMap).concat(Object.keys(definedTypes));
+  const { definitions } = context.getDocument();
+  const existingTypesMap = context.getSchema()?.getTypeMap() ?? {};
+  const typeNames = new Set([
+    ...Object.keys(existingTypesMap),
+    ...definitions
+      .filter(predicates_js_1.isTypeDefinitionNode)
+      .map((def) => def.name.value),
+  ]);
   return {
-    NamedType: function NamedType(node, _1, parent, _2, ancestors) {
-      var typeName = node.name.value;
-
-      if (!existingTypesMap[typeName] && !definedTypes[typeName]) {
-        var _ancestors$;
-
-        var definitionNode = (_ancestors$ = ancestors[2]) !== null && _ancestors$ !== void 0 ? _ancestors$ : parent;
-        var isSDL = definitionNode != null && isSDLNode(definitionNode);
-
-        if (isSDL && isStandardTypeName(typeName)) {
+    NamedType(node, _1, parent, _2, ancestors) {
+      const typeName = node.name.value;
+      if (!typeNames.has(typeName)) {
+        const definitionNode = ancestors[2] ?? parent;
+        const isSDL = definitionNode != null && isSDLNode(definitionNode);
+        if (isSDL && standardTypeNames.has(typeName)) {
           return;
         }
-
-        var suggestedTypes = (0, _suggestionList.default)(typeName, isSDL ? standardTypeNames.concat(typeNames) : typeNames);
-        context.reportError(new _GraphQLError.GraphQLError("Unknown type \"".concat(typeName, "\".") + (0, _didYouMean.default)(suggestedTypes), node));
+        const suggestedTypes = (0, suggestionList_js_1.suggestionList)(
+          typeName,
+          isSDL ? [...standardTypeNames, ...typeNames] : [...typeNames],
+        );
+        context.reportError(
+          new GraphQLError_js_1.GraphQLError(
+            `Unknown type "${typeName}".` +
+              (0, didYouMean_js_1.didYouMean)(suggestedTypes),
+            { nodes: node },
+          ),
+        );
       }
-    }
+    },
   };
 }
-
-var standardTypeNames = [].concat(_scalars.specifiedScalarTypes, _introspection.introspectionTypes).map(function (type) {
-  return type.name;
-});
-
-function isStandardTypeName(typeName) {
-  return standardTypeNames.indexOf(typeName) !== -1;
-}
-
+exports.KnownTypeNamesRule = KnownTypeNamesRule;
+const standardTypeNames = new Set(
+  [
+    ...scalars_js_1.specifiedScalarTypes,
+    ...introspection_js_1.introspectionTypes,
+  ].map((type) => type.name),
+);
 function isSDLNode(value) {
-  return !Array.isArray(value) && ((0, _predicates.isTypeSystemDefinitionNode)(value) || (0, _predicates.isTypeSystemExtensionNode)(value));
+  return (
+    'kind' in value &&
+    ((0, predicates_js_1.isTypeSystemDefinitionNode)(value) ||
+      (0, predicates_js_1.isTypeSystemExtensionNode)(value))
+  );
 }

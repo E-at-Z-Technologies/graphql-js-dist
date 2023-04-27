@@ -1,26 +1,10 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.introspectionFromSchema = introspectionFromSchema;
-
-var _invariant = _interopRequireDefault(require("../jsutils/invariant.js"));
-
-var _parser = require("../language/parser.js");
-
-var _execute = require("../execution/execute.js");
-
-var _getIntrospectionQuery = require("./getIntrospectionQuery.js");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.introspectionFromSchema = void 0;
+const invariant_js_1 = require('../jsutils/invariant.js');
+const parser_js_1 = require('../language/parser.js');
+const execute_js_1 = require('../execution/execute.js');
+const getIntrospectionQuery_js_1 = require('./getIntrospectionQuery.js');
 /**
  * Build an IntrospectionQuery from a GraphQLSchema
  *
@@ -31,18 +15,19 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * of the server context, for instance when doing schema comparisons.
  */
 function introspectionFromSchema(schema, options) {
-  var optionsWithDefaults = _objectSpread({
+  const optionsWithDefaults = {
     specifiedByUrl: true,
     directiveIsRepeatable: true,
     schemaDescription: true,
-    inputValueDeprecation: true
-  }, options);
-
-  var document = (0, _parser.parse)((0, _getIntrospectionQuery.getIntrospectionQuery)(optionsWithDefaults));
-  var result = (0, _execute.executeSync)({
-    schema: schema,
-    document: document
-  });
-  !result.errors && result.data || (0, _invariant.default)(0);
+    inputValueDeprecation: true,
+    ...options,
+  };
+  const document = (0, parser_js_1.parse)(
+    (0, getIntrospectionQuery_js_1.getIntrospectionQuery)(optionsWithDefaults),
+  );
+  const result = (0, execute_js_1.executeSync)({ schema, document });
+  (result.errors == null && result.data != null) ||
+    (0, invariant_js_1.invariant)(false);
   return result.data;
 }
+exports.introspectionFromSchema = introspectionFromSchema;

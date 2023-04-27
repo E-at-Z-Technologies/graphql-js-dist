@@ -1,20 +1,8 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.valueFromASTUntyped = valueFromASTUntyped;
-
-var _inspect = _interopRequireDefault(require("../jsutils/inspect.js"));
-
-var _invariant = _interopRequireDefault(require("../jsutils/invariant.js"));
-
-var _keyValMap = _interopRequireDefault(require("../jsutils/keyValMap.js"));
-
-var _kinds = require("../language/kinds.js");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.valueFromASTUntyped = void 0;
+const keyValMap_js_1 = require('../jsutils/keyValMap.js');
+const kinds_js_1 = require('../language/kinds.js');
 /**
  * Produces a JavaScript value given a GraphQL Value AST.
  *
@@ -33,36 +21,28 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  */
 function valueFromASTUntyped(valueNode, variables) {
   switch (valueNode.kind) {
-    case _kinds.Kind.NULL:
+    case kinds_js_1.Kind.NULL:
       return null;
-
-    case _kinds.Kind.INT:
+    case kinds_js_1.Kind.INT:
       return parseInt(valueNode.value, 10);
-
-    case _kinds.Kind.FLOAT:
+    case kinds_js_1.Kind.FLOAT:
       return parseFloat(valueNode.value);
-
-    case _kinds.Kind.STRING:
-    case _kinds.Kind.ENUM:
-    case _kinds.Kind.BOOLEAN:
+    case kinds_js_1.Kind.STRING:
+    case kinds_js_1.Kind.ENUM:
+    case kinds_js_1.Kind.BOOLEAN:
       return valueNode.value;
-
-    case _kinds.Kind.LIST:
-      return valueNode.values.map(function (node) {
-        return valueFromASTUntyped(node, variables);
-      });
-
-    case _kinds.Kind.OBJECT:
-      return (0, _keyValMap.default)(valueNode.fields, function (field) {
-        return field.name.value;
-      }, function (field) {
-        return valueFromASTUntyped(field.value, variables);
-      });
-
-    case _kinds.Kind.VARIABLE:
-      return variables === null || variables === void 0 ? void 0 : variables[valueNode.name.value];
-  } // istanbul ignore next (Not reachable. All possible value nodes have been considered)
-
-
-  false || (0, _invariant.default)(0, 'Unexpected value node: ' + (0, _inspect.default)(valueNode));
+    case kinds_js_1.Kind.LIST:
+      return valueNode.values.map((node) =>
+        valueFromASTUntyped(node, variables),
+      );
+    case kinds_js_1.Kind.OBJECT:
+      return (0, keyValMap_js_1.keyValMap)(
+        valueNode.fields,
+        (field) => field.name.value,
+        (field) => valueFromASTUntyped(field.value, variables),
+      );
+    case kinds_js_1.Kind.VARIABLE:
+      return variables?.[valueNode.name.value];
+  }
 }
+exports.valueFromASTUntyped = valueFromASTUntyped;

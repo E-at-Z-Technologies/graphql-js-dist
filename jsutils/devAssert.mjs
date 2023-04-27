@@ -1,7 +1,5 @@
-export default function devAssert(condition, message) {
-  var booleanCondition = Boolean(condition); // istanbul ignore else (See transformation done in './resources/inlineInvariant.js')
-
-  if (!booleanCondition) {
+export function devAssert(condition, message) {
+  if (!condition) {
     throw new Error(message);
   }
 }
