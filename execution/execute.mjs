@@ -637,6 +637,9 @@ function completeValue(exeContext, returnType, fieldNodes, info, path, result) {
     );
 }
 function completeObjectFlat(object, returnType) {
+  if (!returnType.getFields) {
+    return object;
+  }
   object.__typename = returnType.name;
   var fields = returnType.getFields();
   for (var key in object) {
