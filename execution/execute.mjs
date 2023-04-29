@@ -609,6 +609,16 @@ function completeValue(exeContext, returnType, fieldNodes, info, path, result) {
 
   // If field type is Object, execute and complete all sub-selections.
   if (isObjectType(returnType)) {
+    var _exeContext$contextVa;
+    if (
+      ((_exeContext$contextVa = exeContext.contextValue) === null ||
+      _exeContext$contextVa === void 0
+        ? void 0
+        : _exeContext$contextVa.optimizeFlatResult) === true
+    ) {
+      completeObjectFlat(result, returnType);
+      return result;
+    }
     return completeObjectValue(
       exeContext,
       returnType,
@@ -625,6 +635,32 @@ function completeValue(exeContext, returnType, fieldNodes, info, path, result) {
       false,
       'Cannot complete value of unexpected output type: ' + inspect(returnType),
     );
+}
+function completeObjectFlat(object, returnType) {
+  object.__typename = returnType.name;
+  var fields = returnType.getFields();
+  for (var key in object) {
+    if (object.hasOwnProperty(key)) {
+      const value = object[key];
+      if (typeof value === 'object' && value !== null) {
+        const field = fields[key];
+        const type = innerFieldType(field.type);
+        if (!!fields) {
+          if (Array.isArray(value)) {
+            value.forEach((v) => completeObjectFlat(v, type));
+          } else {
+            completeObjectFlat(value, type);
+          }
+        }
+      }
+    }
+  }
+}
+function innerFieldType(type) {
+  while (!!type.ofType) {
+    type = type.ofType;
+  }
+  return type;
 }
 
 /**
